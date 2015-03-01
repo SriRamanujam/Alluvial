@@ -2,6 +2,9 @@
 #define SERVER_H
 
 #include <QObject>
+#include <QTcpServer>
+#include <QNetworkInterface>
+#include <QTcpSocket>
 
 class Server : public QObject
 {
@@ -13,6 +16,12 @@ public:
 signals:
 
 public slots:
+
+private slots:
+    void handleResponse();
+private:
+    QTcpServer *server;
+    void initServer();
 };
 
 #endif // SERVER_H
