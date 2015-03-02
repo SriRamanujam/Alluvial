@@ -5,7 +5,7 @@ Server::Server(QObject *parent) : QObject(parent)
     server = new QTcpServer();
     initServer();
 
-    // hook up our signal and slot so it's automatically handled.
+    // hook up our signal and slot so new connections are automatically handled.
     connect(server, SIGNAL(newConnection()), this, SLOT(handleResponse()));
 }
 
@@ -43,13 +43,33 @@ void Server::handleResponse()
     QTcpSocket *socket = server->nextPendingConnection();
     connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
 
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << "We're just writing a string to see if it worked.";
+    QFile file("/home/sri/Downloads/09-99-Problems.mp3"); // got 99 problems but socket programming ain't one (yet)
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "File not openable, aborting...";
+        exit(4);
+    }
 
-    socket->write(block);
+    // set up our byte array and file position pointer
+    QByteArray block;
+    qint64 pos = 0;
+
+    // send file in 1024-byte chunks
+    while(!file.atEnd()) {
+        if(file.seek(pos)) {
+            qDebug() << "Sending bytes " << pos << " to " << pos + 1024;
+            block = file.read(1024);
+            socket->write(block);
+            socket->waitForBytesWritten();
+            pos += 1024;
+            qDebug() << "Wrote bytes successfully";
+        } else {
+            qWarning() << "Could not seek to specified file position";
+        }
+    }
+
+    // cleanup
     socket->disconnectFromHost();
+    file.close();
 }
 
 Server::~Server()

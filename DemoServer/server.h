@@ -5,6 +5,7 @@
 #include <QTcpServer>
 #include <QNetworkInterface>
 #include <QTcpSocket>
+#include <QFile>
 
 class Server : public QObject
 {
