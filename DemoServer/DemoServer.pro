@@ -16,7 +16,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    server.cpp
+    server.cpp \
+    httprequest.cpp
 
 HEADERS += \
-    server.h
+    server.h \
+    httprequest.h

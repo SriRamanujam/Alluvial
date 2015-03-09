@@ -5,6 +5,9 @@
 #include <QMediaPlayer>
 #include <QAudioProbe>
 #include <QAudioBuffer>
+#include <QNetworkReply>
+#include <QBuffer>
+#include <QNetworkAccessManager>
 
 class Client : public QObject
 {
@@ -18,8 +21,13 @@ signals:
 public slots:
 private slots:
     void printStatus(qint64 pos);
+    void requestFinished(QNetworkReply* reply);
 private:
     QMediaPlayer *player;
+    QNetworkAccessManager *manager;
+    void play();
+    void initiateDownload();
+    qint64 counter;
 };
 
 #endif // CLIENT_H

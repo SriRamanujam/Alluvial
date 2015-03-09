@@ -1,3 +1,4 @@
+#include "httprequest.h"
 #include "server.h"
 
 Server::Server(QObject *parent) : QObject(parent)
@@ -38,24 +39,50 @@ void Server::initServer()
 
 void Server::handleResponse()
 {
-    // hook up our socket such that it destroys itself when it's done sending
-    // stuff.
-    QTcpSocket *socket = server->nextPendingConnection();
-    connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
+    HttpRequest *req = new HttpRequest(server->nextPendingConnection());
+    qDebug() << "Client has connected";
 
-    QFile file("/home/sri/Downloads/09-99-Problems.mp3"); // got 99 problems but socket programming ain't one (yet)
+    handleGET(req->getSocket());
+//    if (req->getRequestType() == GET) {
+//        handleGET(req->getSocket());
+//    } else {
+//        qDebug() << "TODO: Not implemented";
+//        req->getSocket()->disconnectFromHost();
+//    }
+}
+
+void Server::handleGET(QTcpSocket* socket)
+{
+    QFile file("/home/sri/Downloads/sugar.mp3"); // got 99 problems but socket programming ain't one (yet)
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "File not openable, aborting...";
         exit(4);
     }
 
-    // set up our byte array and file position pointer
+//    QByteArray data = socket->readAll();
+//    qDebug() << data;
+//    HttpRequest *req = new HttpRequest(&data);
+
+//    while(1) {
+//        if (socket->canReadLine()) {
+//            qDebug() << socket->readLine();
+//        }
+//    }
+
+    socket->write("HTTP/1.1 200 OK\r\n");
+    socket->write("Content-Type: audio/mpeg\r\n");
+//    socket->write("Accept-Ranges: bytes\r\n");
+    socket->write("Content-Length: 9617355\r\n");
+    socket->write("\r\n");
+//    socket->write("Hello world!");
+
+//     set up our byte array and file position pointer
     QByteArray block;
     qint64 pos = 0;
 
-    // send file in 1024-byte chunks
+//      send file in 1024-byte chunks
     while(!file.atEnd()) {
-        if(file.seek(pos)) {
+        if(file.seek(pos) && (socket->state() != QAbstractSocket::UnconnectedState)) {
             qDebug() << "Sending bytes " << pos << " to " << pos + 1024;
             block = file.read(1024);
             socket->write(block);
@@ -63,11 +90,12 @@ void Server::handleResponse()
             pos += 1024;
             qDebug() << "Wrote bytes successfully";
         } else {
-            qWarning() << "Could not seek to specified file position";
+            qWarning() << "Everything has gone wrong, disconnecting.";
+            break;
         }
     }
 
-    // cleanup
+//    cleanup
     socket->disconnectFromHost();
     file.close();
 }
@@ -76,6 +104,3 @@ Server::~Server()
 {
     server->deleteLater();
 }
-
-
-
