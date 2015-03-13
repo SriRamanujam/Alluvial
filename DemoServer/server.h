@@ -2,10 +2,12 @@
 #define SERVER_H
 
 #include <QObject>
-#include <QTcpServer>
+#include <QWebSocketServer>
+#include <QWebSocket>
+#include <QJsonDocument>
 #include <QNetworkInterface>
-#include <QTcpSocket>
-#include <QAbstractSocket>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QFile>
 
 class Server : public QObject
@@ -21,12 +23,10 @@ public slots:
 
 private slots:
     void handleResponse();
-//    void debugPrintSocketResults();
+    void debugPrintResults(QString doc);
 private:
-    QTcpServer *server;
+    QWebSocketServer *server;
     void initServer();
-    void handleGET(QTcpSocket* socket);
-    void handlePOST(QTcpSocket* socket);
 };
 
 #endif // SERVER_H

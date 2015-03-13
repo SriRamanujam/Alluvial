@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network multimedia
+QT       += core network multimedia websockets
 
 QT       -= gui
 

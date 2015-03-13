@@ -5,6 +5,7 @@
 #include <QMediaPlayer>
 #include <QAudioProbe>
 #include <QAudioBuffer>
+#include <QWebSocket>
 #include <QNetworkReply>
 #include <QBuffer>
 #include <QNetworkAccessManager>
@@ -20,13 +21,13 @@ signals:
 
 public slots:
 private slots:
-    void printStatus(qint64 pos);
-    void requestFinished(QNetworkReply* reply);
+    void debugPrintError(QAbstractSocket::SocketError error);
+    void debugSendData();
+    void debugCloseClient();
 private:
     QMediaPlayer *player;
     QNetworkAccessManager *manager;
-    void play();
-    void initiateDownload();
+    QWebSocket* socket;
     qint64 counter;
 };
 

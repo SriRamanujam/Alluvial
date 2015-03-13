@@ -1,4 +1,5 @@
 #include "client.h"
+#include <unistd.h>
 
 Client::Client(QObject *parent) : QObject(parent)
 {
@@ -7,58 +8,37 @@ Client::Client(QObject *parent) : QObject(parent)
     qint64 SERVER_PORT = 8900;
     counter = 0;
 
-    player = new QMediaPlayer(this, QMediaPlayer::StreamPlayback);
-    manager = new QNetworkAccessManager(this);
+    qDebug() << "Starting data transfer";
 
-    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
-    connect(player, SIGNAL(positionChanged(qint64)), this, SLOT(printStatus(qint64)));
+    const QString data = QString("{'properties' : 'yurmum' }");
+    socket = new QWebSocket();
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(debugPrintError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(connected()), this, SLOT(debugSendData()));
 
+    socket->open(QUrl("ws://192.168.2.7:8900"));
 
-    initiateDownload();
 }
 
 Client::~Client()
 {
-    player->deleteLater();
+//    player->deleteLater();
 }
 
-void Client::printStatus(qint64 pos)
+void Client::debugPrintError(QAbstractSocket::SocketError error)
 {
-    qDebug() << "Current position is " << pos / 1000 / 60 << ":" << pos / 1000 % 60;
-//    counter += 1;
-//    if (counter > 14) {
-//        player->setPosition(32000);
-//        counter = 0;
-//    }
+    qDebug() << "ERR: error is" << error;
 }
 
-void Client::requestFinished(QNetworkReply *reply)
+void Client::debugSendData()
 {
-    QByteArray file;
-    QBuffer buf;
-    if (reply->isFinished()) {
-        buf = QBuffer(&reply->readAll(), this);
-    }
-
-    player->setMedia(QMediaContent(), &buf);
-    player->setVolume(20);
-    player->play();
+    const QString data = QString("{properties: yurmum}");
+    qDebug() << "Connected to " << socket->requestUrl();
+    quint64 data_sent = socket->sendTextMessage(data);
+    qDebug() << "Sent" << data_sent << "bytes of data";
 }
 
-void Client::initiateDownload()
+void Client::debugCloseClient()
 {
-    QNetworkRequest req = QNetworkRequest(QUrl("http://192.168.2.7:8900"));
-    manager->get(req);
-}
-
-void Client::play()
-{
-//    player->setMedia(QUrl::fromLocalFile("/home/sri/Downloads/09-99-Problems.mp3"));
-    player->setMedia(QMediaContent(QNetworkRequest(QUrl("http://192.168.2.7:8900"))));
-    player->setVolume(20);
-
-//    player->setPosition(34000);
-
-    player->play();
+    qDebug() << "Server terminated connection, closing";
 }
 

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network
+QT       += core network websockets
 
 QT       -= gui
 
@@ -16,9 +16,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    server.cpp \
-    httprequest.cpp
+    server.cpp
 
 HEADERS += \
-    server.h \
-    httprequest.h
+    server.h
