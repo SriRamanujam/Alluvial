@@ -23,7 +23,8 @@ public slots:
 
 private slots:
     void handleResponse();
-    void debugPrintResults(QString doc);
+    void onTextMessageReceived(QString doc);
+    void onTextFrameReceived(QString doc, bool last);
 private:
     QWebSocketServer *server;
     void initServer();

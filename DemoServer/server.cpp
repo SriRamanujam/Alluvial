@@ -43,47 +43,44 @@ void Server::handleResponse()
     qDebug() << "Client has connected";
 
     QWebSocket *socket = server->nextPendingConnection();
-    connect(socket, SIGNAL(textMessageReceived(QString)), this, SLOT(debugPrintResults(QString)));
-
+    connect(socket, SIGNAL(textMessageReceived(QString)),
+            this, SLOT(onTextMessageReceived(QString)));
+    connect(socket, SIGNAL(binaryMessageReceived(QByteArray)),
+            socket, SLOT(close()));
+    connect(socket, SIGNAL(binaryFrameReceived(QByteArray,bool)),
+            socket, SLOT(close()));
 }
 
-void Server::debugPrintResults(QString doc)
+void Server::onTextMessageReceived(QString doc)
 {
-    QWebSocket *socket = qobject_cast<QWebSocket *>(sender());
-    if (socket) {
-        qDebug("Received message from client");
-        qDebug() << doc;
+    qDebug("Received message from client");
+    qDebug() << doc;
+
+    QJsonDocument json = QJsonDocument::fromJson(doc.toUtf8());
+    QJsonObject obj = json.object();
+
+    qDebug() << obj["properties"];
+
+    QWebSocket *client = qobject_cast<QWebSocket *>(sender());
+    if (client) {
+        QString msg = "I have sent a reply back to you! Huzzah!";
+//        client->sendTextMessage(msg);
+
+        QFile file("/home/sri/Downloads/sugar.mp3");
+        file.open(QIODevice::ReadOnly);
+        QByteArray data = file.readAll();
+        qDebug() << "Read file in, now sending";
+        client->sendBinaryMessage(data);
+    } else {
+        qDebug() << "reverse socket not found";
     }
 
-    socket->close();
 }
 
-//void Server::handleGET(QTcpSocket* socket)
-//{
-//    QFile file("/home/sri/Downloads/sugar.mp3"); // got 99 problems but socket programming ain't one (yet)
-//    if (!file.open(QIODevice::ReadOnly)) {
-//        qWarning() << "File not openable, aborting...";
-//        exit(4);
-//    }
+void Server::onTextFrameReceived(QString doc, bool last)
+{
 
-////     set up our byte array and file position pointer
-//    QByteArray block;
-//    qint64 pos = 0;
-
-////      send file in 1024-byte chunks
-//    while(!file.atEnd()) {
-//        if(file.seek(pos) && (socket->state() != QAbstractSocket::UnconnectedState)) {
-//            qDebug() << "Sending bytes " << pos << " to " << pos + 1024;
-//            block = file.read(1024);
-//            socket->write(block);
-//            socket->waitForBytesWritten();
-//            pos += 1024;
-//            qDebug() << "Wrote bytes successfully";
-//        } else {
-//            qWarning() << "Everything has gone wrong, disconnecting.";
-//            break;
-//        }
-//    }
+}
 
 Server::~Server()
 {

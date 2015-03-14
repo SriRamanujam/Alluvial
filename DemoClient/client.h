@@ -2,12 +2,12 @@
 #define CLIENT_H
 
 #include <QObject>
+#include <QFile>
 #include <QMediaPlayer>
-#include <QAudioProbe>
-#include <QAudioBuffer>
 #include <QWebSocket>
-#include <QNetworkReply>
-#include <QBuffer>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
 
 class Client : public QObject
@@ -23,6 +23,8 @@ public slots:
 private slots:
     void debugPrintError(QAbstractSocket::SocketError error);
     void debugSendData();
+    void onTextMessageReceived(QString msg);
+    void onBinaryMessageReceived(QByteArray data);
     void debugCloseClient();
 private:
     QMediaPlayer *player;

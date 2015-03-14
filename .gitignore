@@ -29,4 +29,5 @@
 
 # Qt-specific files
 *.pro.user
+*autosave
 build*/
