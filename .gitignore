@@ -31,3 +31,4 @@
 *.pro.user
 *autosave
 build*/
+doc*

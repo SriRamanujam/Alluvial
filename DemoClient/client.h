@@ -28,9 +28,8 @@ private slots:
     void debugCloseClient();
 private:
     QMediaPlayer *player;
-    QNetworkAccessManager *manager;
+//    QNetworkAccessManager *manager;
     QWebSocket* socket;
-    qint64 counter;
 };
 
 #endif // CLIENT_H

@@ -13,5 +13,5 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 SUBDIRS += \
-    DemoServer \
+    Server \
     DemoClient

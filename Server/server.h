@@ -27,7 +27,7 @@ private slots:
     void onTextFrameReceived(QString doc, bool last);
 private:
     QWebSocketServer *server;
-    void initServer();
+    void initServer(quint64 port);
 };
 
 #endif // SERVER_H

@@ -1,0 +1,11 @@
+#include(/usr/share/doc/qt/global/qt-module-defaults.qdocconf)
+project         = Alluvial
+description     = Alluvial Project Documentation
+version         = 0.0.1-pre
+
+outputdir       = ./doc
+
+headerdirs      = ./Server
+
+outputformats   = HTML
+outputdir       = ./doc/html

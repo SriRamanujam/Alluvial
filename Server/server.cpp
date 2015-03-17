@@ -1,19 +1,32 @@
 #include "server.h"
 
+/*!
+ * \brief This class is the top-level server class. It starts up all the needed
+ * parameters, hooks up all the necessary signals, etc. Right now it's hard-coded
+ * to have the name "Alluvial Server" and to start in non-secure mode. This may
+ * change in the future.
+ *
+ * \param parent
+ */
 Server::Server(QObject *parent) : QObject(parent)
 {
     server = new QWebSocketServer(QStringLiteral("Alluvial Server"),
                                   QWebSocketServer::NonSecureMode, this);
-    initServer();
+    initServer(8900);
 
     // hook up our signal and slot so new connections are automatically handled.
     connect(server, SIGNAL(newConnection()), this, SLOT(handleResponse()));
     connect(server, SIGNAL(closed()), this, SLOT(deleteLater()));
 }
 
-void Server::initServer()
+/*!
+ * \brief Sets up server, instantiates all singleton handlers, and starts
+ * the server listening on all interfaces on the specified port. By default the
+ * server is set to listen on port 8900.
+ */
+void Server::initServer(quint64 port)
 {
-    if (!server->listen(QHostAddress::Any, 8900)) {
+    if (!server->listen(QHostAddress::Any, port)) {
         qWarning() << "Server not able to bind to port, aborting";
         exit(1);
     }
@@ -38,6 +51,11 @@ void Server::initServer()
     qDebug() << "The server is up on " << ip << ":" << server->serverPort();
 }
 
+/*!
+ * \brief Called when a new connection is made. This method receives the
+ * new connection, creates a new ClientConnection object, and stores it in the
+ * ActiveSockets instance associated with the class.
+ */
 void Server::handleResponse()
 {
     qDebug() << "Client has connected";
@@ -45,41 +63,13 @@ void Server::handleResponse()
     QWebSocket *socket = server->nextPendingConnection();
     connect(socket, SIGNAL(textMessageReceived(QString)),
             this, SLOT(onTextMessageReceived(QString)));
+
+    // server should never receive these types of communication. we close
+    // the socket immediately to reduce risk.
     connect(socket, SIGNAL(binaryMessageReceived(QByteArray)),
             socket, SLOT(close()));
     connect(socket, SIGNAL(binaryFrameReceived(QByteArray,bool)),
             socket, SLOT(close()));
-}
-
-void Server::onTextMessageReceived(QString doc)
-{
-    qDebug("Received message from client");
-    qDebug() << doc;
-
-    QJsonDocument json = QJsonDocument::fromJson(doc.toUtf8());
-    QJsonObject obj = json.object();
-
-    qDebug() << obj["properties"];
-
-    QWebSocket *client = qobject_cast<QWebSocket *>(sender());
-    if (client) {
-        QString msg = "I have sent a reply back to you! Huzzah!";
-//        client->sendTextMessage(msg);
-
-        QFile file("/home/sri/Downloads/sugar.mp3");
-        file.open(QIODevice::ReadOnly);
-        QByteArray data = file.readAll();
-        qDebug() << "Read file in, now sending";
-        client->sendBinaryMessage(data);
-    } else {
-        qDebug() << "reverse socket not found";
-    }
-
-}
-
-void Server::onTextFrameReceived(QString doc, bool last)
-{
-
 }
 
 Server::~Server()

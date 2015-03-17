@@ -8,7 +8,7 @@ QT       += core network websockets
 
 QT       -= gui
 
-TARGET = DemoServer
+TARGET = Server
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -16,7 +16,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    server.cpp
+    server.cpp \
+    activesockets.cpp \
+    clientconnection.cpp
 
 HEADERS += \
-    server.h
+    server.h \
+    activesockets.h \
+    clientconnection.h
