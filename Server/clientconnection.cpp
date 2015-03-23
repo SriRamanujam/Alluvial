@@ -15,9 +15,13 @@ ClientConnection::ClientConnection(QWebSocket *sock, QObject *parent) : QObject(
     socket = sock;
 }
 
+/*!
+ * \brief Handles safe and secure cleanup of any instance variables or references
+ * held by this object.
+ */
 ClientConnection::~ClientConnection()
 {
-
+    socket->deleteLater();
 }
 
 /*!
@@ -27,9 +31,7 @@ ClientConnection::~ClientConnection()
  * this method serves as the main point of entry into each instance of this
  * class.
  *
- * Right now it just sends a hardcoded binary file as a response to every request
- * as a test proof-of-concept. In the future it will have its full suite of
- * functionality.
+ * \param A QString representing the text message received from the client.
  */
 void ClientConnection::onTextMessageReceived(QString doc)
 {
@@ -37,15 +39,7 @@ void ClientConnection::onTextMessageReceived(QString doc)
     qDebug() << doc;
 
     // I have no idea what this line does, but it gets us the sender's socket.
-    QWebSocket *client = qobject_cast<QWebSocket *>(sender());
-
-    if (client) {
-        connect(client, SIGNAL(disconnected()),
-                client, SLOT(deleteLater()));
-    } else {
-        qWarning() << "socket not retrieved, aborting early.";
-        return;
-    }
+//    QWebSocket *client = qobject_cast<QWebSocket *>(sender());
 
     QJsonDocument json = QJsonDocument::fromJson(doc.toUtf8());
     QJsonObject obj = json.object();
@@ -55,32 +49,147 @@ void ClientConnection::onTextMessageReceived(QString doc)
     if (obj["request_type"].isString()) {
         QString type = obj["request_type"].toString();
 
-        if (type == "song") {
-            // TODO: replace with actual logic
-            QFile file("/home/sri/Downloads/sugar.mp3");
-            file.open(QIODevice::ReadOnly);
-            QByteArray data = file.readAll();
-            qDebug() << "Read file in, now sending";
-            client->sendBinaryMessage(data);
+        if (type == "media") {
+            _handleMediaReq(obj);
             return;
         } else if (type == "search") {
-            QJsonDocument res = debugDemoSearch(obj); // TODO: change
-            client->sendTextMessage(QString(res.toJson()));
+            _handleSearchReq(obj);
             return;
+        } else if (type == "settings") {
+            _handleSettingsReq(obj);
         } else {
             QJsonDocument res = buildErrorMsg(MessageParseError::InvalidRequestType);
-            client->sendTextMessage(QString(res.toJson()));
+            socket->sendTextMessage(QString(res.toJson()));
             return;
         }
     } else {
         QJsonDocument res = buildErrorMsg(MessageParseError::InvalidRequestType);
-        client->sendTextMessage(QString(res.toJson()));
+        socket->sendTextMessage(QString(res.toJson()));
         return;
     }
 }
 
-QJsonDocument ClientConnection::debugDemoSearch(QJsonObject obj)
+/*!
+ * \brief ClientConnection::_handleSettingsReq
+ * \param req
+ */
+void ClientConnection::_handleSettingsReq(QJsonObject req)
 {
 
 }
+
+void ClientConnection::onSearchReqProcessed(QJsonObject response)
+{
+
+}
+
+/*!
+ * \brief This method handles authentication. It extracts the password, checks it against
+ * the server's stored password, and sends an appropriate response. Because there is absolutely
+ * no crypto involved (yet) in this transaction, this ends up being a huge wrapper around
+ * a string comparison. This is roadmapped to change in the future.
+ *
+ * \param The request object received from the client.
+ * \return
+ */
+void ClientConnection::_handleAuthenticationReq(QJsonObject req)
+{
+    qDebug() << "We are now handling an authentication request";
+
+    QJsonObject res;
+    QJsonObject result;
+    res["response_type"] == "authentication";
+
+    QString pass = req["request"].toObject()["password"].toString();
+
+    // placeholder line, but you get the gist.
+    if (pass == serverPass) {
+        result["success"] = true;
+    } else {
+        result["success"] = false;
+    }
+
+    res["response"] = result;
+
+    socket->sendTextMessage(QJsonDocument(res).toJson());
+}
+
+/*!
+ * \brief This method handles search requests. It extracts the query from the request,
+ * hands the query string to the search handler and sets up a callback for when the
+ * search completes.
+ *
+ * \param The QJsonObject representing the request from the client.
+ * \return
+ */
+void ClientConnection::_handleSearchReq(QJsonObject req)
+{
+    qDebug() << "We are now handling a search request";
+
+    QJsonObject res;
+
+    // TODO: error handling here, in case some part of this doesn't work.
+    QString query = req["request"].toObject()["query"].toString();
+
+    // placeholder line, but API should be the same.
+    QJsonObject response = mediaHandler->search(query);
+
+
+    res["response_type"] = "search";
+    res["query"] = query;
+    res["results"] = response;
+
+    socket->sendTextMessage(QJsonDocument(res).toJson());
+}
+
+/*!
+ * \brief This function provides a brief method to retrieve a media file from
+ * the mediaHandler module. It uses the media object's unique hash to retrieve
+ * the most optimal version of the source file.
+ *
+ * \param The QJsonObject representing the full request from the client.
+ */
+void ClientConnection::_handleMediaReq(QJsonObject req)
+{
+    qDebug() << "We are now handling a media request";
+
+    QString hash = req["request"].toObject()["hash"].toString();
+
+    // placeholder code, but you get the idea.
+    QByteArray media = mediaHandler->getMediaFromHash(hash);
+
+    socket->sendBinaryMessage(media);
+}
+
+/*!
+ * \brief This method builds error responses from instances of MessageParseError.
+ * Typically this method is called when program flow enters into an error state
+ * and the server needs to communicate this to the client.
+ *
+ * \param The MessageParseError that was encountered.
+ * \return a QJsonDocument representing the JSON-formatted error response.
+ */
+QJsonDocument ClientConnection::buildErrorMsg(MessageParseError err)
+{
+    QJsonObject errorObj;
+    QString type = mostRecentObj["request_type"].toString(); // racy
+    errorObj["response_type"] = type;
+    errorObj["response"] = "Error";
+
+    // Build error message
+    switch(err) {
+    case MessageParseError::UnknownError:
+        errorObj["error"] = "Unknown Error";
+        break;
+    case MessageParseError::InvalidRequestType:
+        errorObj["error"] = "Invalid request type";
+        break;
+    case MessageParseError::ParseError:
+        errorObj["error"] = "Invalid JSON";
+        break;
+    }
+
+    return QJsonDocument(errorObj);
+}
+
 

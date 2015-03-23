@@ -9,8 +9,9 @@
 #include <QFile>
 
 enum class MessageParseError {
-    UnknownError,
-    InvalidRequestType
+    UnknownError = 0,
+    InvalidRequestType = 1,
+    ParseError = 2
 };
 
 class ClientConnection : public QObject
@@ -22,18 +23,32 @@ public:
     ~ClientConnection();
 
 signals:
+    void authRequestProcessed();
+    void searchReqParsed();
+    void mediaReqParsed();
 
 public slots:
 
 private slots:
-    void onTextMessageReceived(QString doc);
 
 private:
     QWebSocket *socket;
     QJsonObject mostRecentObj;
 
+    //parsing methods
+    void _handleAuthenticationReq(QJsonObject req);
+    void _handleSearchReq(QJsonObject req);
+    void _handleMediaReq(QJsonObject req);
+
+    //oooo nobody should see this
+    void _handleSettingsReq(QJsonObject req);
+
+
     // debug methods
     QJsonDocument debugDemoSearch(QJsonObject obj);
+
+    //build error message
+    QJsonDocument buildErrorMsg(MessageParseError err);
 };
 
 #endif // CLIENTCONNECTION_H
