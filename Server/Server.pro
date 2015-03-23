@@ -24,3 +24,5 @@ HEADERS += \
     server.h \
     activesockets.h \
     clientconnection.h
+
+CONFIG += c++11

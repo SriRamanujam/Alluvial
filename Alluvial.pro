@@ -15,3 +15,5 @@ include(deployment.pri)
 SUBDIRS += \
     Server \
     DemoClient
+
+CONFIG += c++11
