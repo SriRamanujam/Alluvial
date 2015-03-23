@@ -102,6 +102,30 @@ Playlists are, at their core, lists of media objects. In addition to this list, 
 ```
 When media objects are in a playlist, the client should set the "order" field of each media object and use it to store the order of each song in the playlist. Playlist names should be unique. 
 
+### Settings objects
+Settings objects contain all the data that the user wants Alluvial to save persistently.  These settings will be saved on the server for a multitude of reasons.  The primary reason being that the server needs to communicate with third-party sources which requires the user to input username/passwords for those third-party sources.
+The Settings object will contain a "last saved" field.  It will also conatin a list which has objects representing third-party  music sources.  These object will have two keys, "username" and "password" which hold the credentials of the third-party source they are children of.  Lastly,is a list called "other_settings" representing all the other settings that aren't usernames or passwords.
+'''
+{
+    "settings":{
+        "last_saved": "2015-03-18T16:21:27.277Z"
+        "credentials": [
+            "Spotify": {
+                "username": defaultUsername
+                "password": **********
+            },
+            SoundCloud: {
+                "username": "username"
+                "password": "password"
+            },
+            //other third-party sources
+        ]
+        "other_settings"[
+            //a list of every other setting that the user specifiies
+        ]
+}
+'''
+
 ## Message types
 
 ### Authentication
