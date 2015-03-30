@@ -20,7 +20,11 @@ Client::Client(QObject *parent) : QObject(parent)
     connect(socket, SIGNAL(binaryMessageReceived(QByteArray)),
             this, SLOT(onBinaryMessageReceived(QByteArray)));
 
-    socket->open(QUrl("ws://192.168.2.7:8900"));
+    /*
+     * This needs to be set dynamically, probably on startup, via a setting.
+     * Jeff: things for you to do :)
+     */
+    socket->open(QUrl("ws://192.168.2.7:8900")); // TODO: be dynamic
 
 }
 
@@ -44,16 +48,61 @@ void Client::debugPrintError(QAbstractSocket::SocketError error)
  */
 void Client::onTextMessageReceived(QString msg)
 {
-    qWarning() << "TEXT FRAME RECEIVED:" << msg;
+    qDebug() << "Text message received";
+
+    QJsonDocument res = QJsonDocument::fromJson(msg.toUtf8());
+
+    QString res_type = res.object()["response_type"].toString();
+
+    /*
+     * TODO: Jeff and Mitch, these two functions are just ones I made up.
+     * You two have to sit down and decide how you want to handle the
+     * presentation of the data contained within the JSON sent back by the
+     * server. From there, you need to build out these functions accordingly.
+     */
+    if (res_type == "search")  {
+        handleSearchResponse(res.object());
+    } else if (res_type == "authentication") {
+        handleAuthResponse(res.object());
+    }
 }
 
 /*!
- * \brief Client::onBinaryMessageReceived
- * \param data
+ * \brief Client::handleAuthResponse
+ * \param obj
+ */
+void Client::handleAuthResponse(QJsonObject obj)
+{
+    return;
+}
+
+/*!
+ * \brief Client::handleSearchResponse
+ * \param obj
+ */
+void Client::handleSearchResponse(QJsonObject obj)
+{
+
+}
+
+/*!
+ * \brief This function is called when the websocket receives a binary message.
+ * For the purposes of the Alluvial client, the only thing that will be sent as
+ * a binary message will be a song, so this function essentially serves as the
+ * entry point for media playback once the file has been received from the server.
+ *
+ * Right now, it writes the song to a temp file, then sets up the QMediaPlayer
+ * instance to play from that file. Fairly simple.
+ *
+ * \todo Needs to be able to dynamically choose a good temp location. Not every
+ * computer will have the /run filesystem set up. How do other applications
+ * do this?
+ *
+ * \param data The media file in the form of a QByteArray
  */
 void Client::onBinaryMessageReceived(QByteArray data)
 {
-    QFile tmp_file("/run/user/1000/out.mp3");
+    QFile tmp_file("/run/user/1000/out.mp3"); // TODO: don't hardcode this
     if(!tmp_file.open(QIODevice::WriteOnly)) {
         qDebug() << "opening location didn't work";
         return;
@@ -66,6 +115,8 @@ void Client::onBinaryMessageReceived(QByteArray data)
         return;
     }
     tmp_file.close();
+
+    // now we play the file
     qDebug() << "Data write finished, now opening file";
 
     player->setMedia(QUrl::fromLocalFile("/run/user/1000/out.mp3"));

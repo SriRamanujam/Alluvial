@@ -16,7 +16,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    client.cpp
+    client.cpp \
+    communicationhandler.cpp
 
 HEADERS += \
-    client.h
+    client.h \
+    communicationhandler.h

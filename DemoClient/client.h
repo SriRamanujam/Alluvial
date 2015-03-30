@@ -28,8 +28,12 @@ private slots:
     void debugCloseClient();
 private:
     QMediaPlayer *player;
-//    QNetworkAccessManager *manager;
     QWebSocket* socket;
+
+
+    //
+    void handleAuthResponse(QJsonObject obj);
+    void handleSearchResponse(QJsonObject obj);
 };
 
 #endif // CLIENT_H
