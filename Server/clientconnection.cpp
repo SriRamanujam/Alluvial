@@ -1,3 +1,6 @@
+/*!
+  @file
+*/
 #include "clientconnection.h"
 
 /*!
@@ -9,6 +12,8 @@
  * of the event loop long enough to do its thing and then hand control back
  * to the main server process.
  * \param parent
+ * \param sock The socket of the client connection this instance of the object will
+ * be handling.
  */
 ClientConnection::ClientConnection(QWebSocket *sock, QObject *parent) : QObject(parent)
 {
@@ -31,7 +36,7 @@ ClientConnection::~ClientConnection()
  * this method serves as the main point of entry into each instance of this
  * class.
  *
- * \param A QString representing the text message received from the client.
+ * \param doc QString representing the text message received from the client.
  */
 void ClientConnection::onTextMessageReceived(QString doc)
 {
@@ -78,18 +83,13 @@ void ClientConnection::_handleSettingsReq(QJsonObject req)
 
 }
 
-void ClientConnection::onSearchReqProcessed(QJsonObject response)
-{
-
-}
-
 /*!
  * \brief This method handles authentication. It extracts the password, checks it against
  * the server's stored password, and sends an appropriate response. Because there is absolutely
  * no crypto involved (yet) in this transaction, this ends up being a huge wrapper around
  * a string comparison. This is roadmapped to change in the future.
  *
- * \param The request object received from the client.
+ * \param req request object received from the client.
  * \return
  */
 void ClientConnection::_handleAuthenticationReq(QJsonObject req)
@@ -119,7 +119,7 @@ void ClientConnection::_handleAuthenticationReq(QJsonObject req)
  * hands the query string to the search handler and sets up a callback for when the
  * search completes.
  *
- * \param The QJsonObject representing the request from the client.
+ * \param req QJsonObject representing the request from the client.
  * \return
  */
 void ClientConnection::_handleSearchReq(QJsonObject req)
@@ -147,7 +147,7 @@ void ClientConnection::_handleSearchReq(QJsonObject req)
  * the mediaHandler module. It uses the media object's unique hash to retrieve
  * the most optimal version of the source file.
  *
- * \param The QJsonObject representing the full request from the client.
+ * \param req QJsonObject representing the full request from the client.
  */
 void ClientConnection::_handleMediaReq(QJsonObject req)
 {
@@ -166,8 +166,8 @@ void ClientConnection::_handleMediaReq(QJsonObject req)
  * Typically this method is called when program flow enters into an error state
  * and the server needs to communicate this to the client.
  *
- * \param The MessageParseError that was encountered.
- * \return a QJsonDocument representing the JSON-formatted error response.
+ * \param err MessageParseError that was encountered.
+ * \return A QJsonDocument representing the JSON-formatted error response.
  */
 QJsonDocument ClientConnection::buildErrorMsg(MessageParseError err)
 {

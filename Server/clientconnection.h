@@ -30,6 +30,7 @@ signals:
 public slots:
 
 private slots:
+    void onTextMessageReceived(QString doc);
 
 private:
     QWebSocket *socket;

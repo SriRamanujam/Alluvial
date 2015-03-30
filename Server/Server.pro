@@ -26,3 +26,5 @@ HEADERS += \
     clientconnection.h
 
 CONFIG += c++11
+
+DISTFILES +=
