@@ -6,11 +6,13 @@
 #include <QWebSocket>
 #include <QJsonObject>
 
+
+
 class CommunicationHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit CommunicationHandler(QObject *parent = 0);
+    explicit CommunicationHandler(QString url, QObject *parent = 0);
     ~CommunicationHandler();
 
     //methods to do things
@@ -25,18 +27,26 @@ public:
 
 signals:
     // when things happen, call these guys. Literally the Ghostbusters.
-    QJsonDocument onPlaylistReceived(QString doc);
-    QJsonDocument onSearchReceived(QJsonDocument doc);
-    QByteArray onMediaReceived(QByteArray data);
-    QJsonDocument onAuthReceived(QString doc);
-    QJsonDocument onErrorReceived(QString doc);
+    void onPlaylistReceived(QJsonDocument doc);
+    void onSearchReceived(QJsonObject doc);
+    void onMediaReceived(QByteArray data);
+    void onAuthReceived(bool success);
+    void onErrorReceived(QString doc);
 
-    // error handling
-    void emitError();
+    // error handling. these are emitted when things go wrong.
+    void playlistError(QString err);
+    void searchError(QString err);
+    void mediaError(QString err);
+    void authError(QString err);
+    void connectionLost();
 public slots:
     
 private:
     QWebSocket *socket;
+
+    void handleSearchResponse(QJsonObject obj);
+    void handleAuthResponse(QJsonObject obj);
+    void handlePlaylistResponse(QJsonObject obj);
 
 private slots:
     void handleBinaryMessage(QByteArray data);

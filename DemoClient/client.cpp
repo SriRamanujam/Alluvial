@@ -1,36 +1,13 @@
 #include "client.h"
 
-/*!
- * \brief Client::Client
- * \param parent
- */
 Client::Client(QObject *parent) : QObject(parent)
 {
-    player = new QMediaPlayer;
-
-    socket = new QWebSocket();
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(debugPrintError(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(connected()),
-            this, SLOT(debugSendData()));
-    connect(socket, SIGNAL(disconnected()),
-            this, SLOT(debugCloseClient()));
-    connect(socket, SIGNAL(textMessageReceived(QString)),
-            this, SLOT(onTextMessageReceived(QString)));
-    connect(socket, SIGNAL(binaryMessageReceived(QByteArray)),
-            this, SLOT(onBinaryMessageReceived(QByteArray)));
-
-    /*
-     * This needs to be set dynamically, probably on startup, via a setting.
-     * Jeff: things for you to do :)
-     */
-    socket->open(QUrl("ws://192.168.2.7:8900")); // TODO: be dynamic
-
+    commsHandler = new CommunicationHandler("127.0.0.1");
 }
 
 Client::~Client()
 {
-//    player->deleteLater();
+    commsHandler->deleteLater();
 }
 
 /*!
@@ -42,48 +19,6 @@ void Client::debugPrintError(QAbstractSocket::SocketError error)
     qDebug() << "ERR: error is" << error;
 }
 
-/*!
- * \brief Client::onTextMessageReceived
- * \param msg
- */
-void Client::onTextMessageReceived(QString msg)
-{
-    qDebug() << "Text message received";
-
-    QJsonDocument res = QJsonDocument::fromJson(msg.toUtf8());
-
-    QString res_type = res.object()["response_type"].toString();
-
-    /*
-     * TODO: Jeff and Mitch, these two functions are just ones I made up.
-     * You two have to sit down and decide how you want to handle the
-     * presentation of the data contained within the JSON sent back by the
-     * server. From there, you need to build out these functions accordingly.
-     */
-    if (res_type == "search")  {
-        handleSearchResponse(res.object());
-    } else if (res_type == "authentication") {
-        handleAuthResponse(res.object());
-    }
-}
-
-/*!
- * \brief Client::handleAuthResponse
- * \param obj
- */
-void Client::handleAuthResponse(QJsonObject obj)
-{
-    return;
-}
-
-/*!
- * \brief Client::handleSearchResponse
- * \param obj
- */
-void Client::handleSearchResponse(QJsonObject obj)
-{
-
-}
 
 /*!
  * \brief This function is called when the websocket receives a binary message.

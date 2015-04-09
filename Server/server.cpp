@@ -17,6 +17,7 @@ Server::Server(QObject *parent) : QObject(parent)
     server = new QWebSocketServer(QStringLiteral("Alluvial Server"),
                                   QWebSocketServer::NonSecureMode, this);
     initServer(8900);
+    sockets = new ActiveSockets();
 
     // hook up our signal and slot so new connections are automatically handled.
     connect(server, SIGNAL(newConnection()), this, SLOT(handleResponse()));
@@ -65,17 +66,12 @@ void Server::handleResponse()
     qDebug() << "Client has connected";
 
     QWebSocket *socket = server->nextPendingConnection();
-    connect(socket, SIGNAL(textMessageReceived(QString)),
-            this, SLOT(onTextMessageReceived(QString)));
-
-    // server should never receive these types of communication. we close
-    // the socket immediately to reduce risk.
-    connect(socket, SIGNAL(binaryMessageReceived(QByteArray)),
-            socket, SLOT(close()));
-    connect(socket, SIGNAL(binaryFrameReceived(QByteArray,bool)),
-            socket, SLOT(close()));
+    ClientConnection* conn = new ClientConnection(socket);
+    sockets->addConnection(conn);
 }
-
+/*!
+ * \brief Handles safe and secure deletion of all objects and state.
+ */
 Server::~Server()
 {
     server->deleteLater();

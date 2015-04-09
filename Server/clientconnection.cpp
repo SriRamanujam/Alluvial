@@ -2,6 +2,7 @@
   @file
 */
 #include "clientconnection.h"
+#include <unistd.h>
 
 /*!
  * \brief This class encapsulates and represents a single client's connection.
@@ -75,8 +76,9 @@ void ClientConnection::onTextMessageReceived(QString doc)
 }
 
 /*!
- * \brief ClientConnection::_handleSettingsReq
- * \param req
+ * \brief No idea what this does yet
+ * \todo Ask Jeff why I put this boilerplate in.
+ * \param req The JSON object representing the request parameters.
  */
 void ClientConnection::_handleSettingsReq(QJsonObject req)
 {
@@ -89,6 +91,8 @@ void ClientConnection::_handleSettingsReq(QJsonObject req)
  * no crypto involved (yet) in this transaction, this ends up being a huge wrapper around
  * a string comparison. This is roadmapped to change in the future.
  *
+ * \todo Need to make a way for the server to store and retrieve a password here
+ *
  * \param req request object received from the client.
  * \return
  */
@@ -98,20 +102,29 @@ void ClientConnection::_handleAuthenticationReq(QJsonObject req)
 
     QJsonObject res;
     QJsonObject result;
+    bool success;
     res["response_type"] == "authentication";
 
     QString pass = req["request"].toObject()["password"].toString();
 
     // placeholder line, but you get the gist.
-    if (pass == serverPass) {
+    // TODO: replace with actual server password, obtained through some method
+    if (pass == "serverPass") {
         result["success"] = true;
+        success = true;
     } else {
         result["success"] = false;
+        success = false;
     }
 
     res["response"] = result;
 
     socket->sendTextMessage(QJsonDocument(res).toJson());
+
+    if (!success) {
+        sleep(5);
+        socket->close(QWebSocketProtocol::CloseCodeNormal, "Authentication failed");
+    }
 }
 
 /*!
@@ -120,7 +133,6 @@ void ClientConnection::_handleAuthenticationReq(QJsonObject req)
  * search completes.
  *
  * \param req QJsonObject representing the request from the client.
- * \return
  */
 void ClientConnection::_handleSearchReq(QJsonObject req)
 {
@@ -130,6 +142,10 @@ void ClientConnection::_handleSearchReq(QJsonObject req)
 
     // TODO: error handling here, in case some part of this doesn't work.
     QString query = req["request"].toObject()["query"].toString();
+    if (query == "") {
+        // error, malformed request
+        // TODO: implement
+    }
 
     // placeholder line, but API should be the same.
     QJsonObject response = mediaHandler->search(query);
@@ -155,7 +171,7 @@ void ClientConnection::_handleMediaReq(QJsonObject req)
 
     QString hash = req["request"].toObject()["hash"].toString();
 
-    // placeholder code, but you get the idea.
+    // TODO: placeholder code, but you get the idea.
     QByteArray media = mediaHandler->getMediaFromHash(hash);
 
     socket->sendBinaryMessage(media);
@@ -191,5 +207,3 @@ QJsonDocument ClientConnection::buildErrorMsg(MessageParseError err)
 
     return QJsonDocument(errorObj);
 }
-
-

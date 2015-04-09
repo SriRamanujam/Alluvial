@@ -13,9 +13,10 @@
  * module should be instantiated during application startup as a singleton. In
  * addition, no other module should have a connection to the socket.
  */
-CommunicationHandler::CommunicationHandler(QObject *parent) : QObject(parent)
+CommunicationHandler::CommunicationHandler(QString url, QObject *parent) : QObject(parent)
 {
-
+    connectToServer(url);
+    qDebug() << "Connected to server, now awaiting orders, sire";
 }
 
 
@@ -37,10 +38,22 @@ CommunicationHandler::~CommunicationHandler()
  */
 void CommunicationHandler::sendAuthRequest(QString pass)
 {
-    QJsonObject obj = new QJsonObject();
-    obj["request_type"] = "authentication";
-    obj["request"] = new QJsonObject();
-    obj["request"].toObject()["password"] = pass;
+
+    QJsonObject obj
+    {
+        {"request_type", "authentication"}
+    };
+
+    QJsonObject inner
+    {
+        {"password", pass}
+    };
+
+    obj["request"] = inner;
+
+    qDebug() << "Authentication request is:";
+    qDebug() << QString(QJsonDocument(obj).toJson());
+
 
     socket->sendTextMessage(QString(QJsonDocument(obj).toJson()));
 }
@@ -49,7 +62,7 @@ void CommunicationHandler::sendAuthRequest(QString pass)
  * \brief This function is called every time a playlist needs to be synced to the server.
  * It serializes the playlist object passed in to JSON and sends it into the socket.
  *
- * TODO: Once Jeff has playlist objects done, build out this method
+ * \todo Once Jeff has playlist objects done, build out this method
  */
 void CommunicationHandler::sendPlaylist()
 {
@@ -57,7 +70,7 @@ void CommunicationHandler::sendPlaylist()
 }
 
 /*!
- * \brief This method validates, formats, and sends search requests to the server.
+ * \brief This method formats and sends search requests to the server.
  * Returns nothing, because error handling is done using a separate signal/slot
  * interface
  *
@@ -65,10 +78,20 @@ void CommunicationHandler::sendPlaylist()
  */
 void CommunicationHandler::sendSearchRequest(QString req)
 {
-    QJsonObject obj = new QJsonObject();
-    obj["request_type"] = "search";
-    obj["request"] = new QJsonObject();
-    obj["request"].toObject()["query"] = req;
+    QJsonObject inner
+    {
+        {"query", req}
+    };
+
+    QJsonObject obj
+    {
+        {"request_type", "search"}
+    };
+
+    obj["request"] = inner;
+
+    qDebug() << "Search request is:";
+    qDebug() << QString(QJsonDocument(obj).toJson());
 
     socket->sendTextMessage(QString(QJsonDocument(obj).toJson()));
 }
@@ -80,17 +103,93 @@ void CommunicationHandler::sendSearchRequest(QString req)
  */
 void CommunicationHandler::sendMediaRequest(QString hash)
 {
-    QJsonObject obj = new QJsonObject();
-    obj["request_type"] = "media";
-    obj["request"] = new QJsonObject();
-    obj["request"].toObject()["hash"] = hash;
+    QJsonObject inner
+    {
+        {"hash", hash}
+    };
+
+    QJsonObject obj
+    {
+        {"request_type", "authentication"}
+    };
+
+    obj["request"] = inner;
+
+    qDebug() << "Media request is:";
+    qDebug() << QString(QJsonDocument(obj).toJson());
 
     socket->sendTextMessage(QString(QJsonDocument(obj).toJson()));
 }
 
 /*!
+ * \brief This method handles any processing and logic needed to render playlist
+ * objects usable by the greater application.
+ *
+ * \todo Implement this once Jeff gets playlist objects sorted out.
+ *
+ * \param obj The QJsonObject containing the playlist contents received from the server.
+ */
+void CommunicationHandler::handlePlaylistResponse(QJsonObject obj)
+{
+    if (obj["response"].toString() == "Error") {
+        // an error has occurred, emit an error message
+        emit playlistError(obj["error"].toString());
+        return;
+    }
+}
+
+/*!
+ * \brief This method deserializes and parses authentication responses from the server,
+ * and emits an error signal if something goes wrong. By design, this function remains
+ * silent if the playlist request succeeded.
+ *
+ * \param obj The QJsonObject containing the response
+ */
+void CommunicationHandler::handleAuthResponse(QJsonObject obj)
+{
+    if (obj["Response"].toString() = "Error") {
+        // an error has occurred, emit an error message
+        emit authError(obj["error"].toString());
+        return;
+    }
+
+    if (obj["request"].toObject()["success"].toBool()) {
+        qDebug() << "Auth request succeeded!";
+        emit onAuthReceived(true);
+        return;
+    } else {
+        qDebug() << "Auth request failed!";
+        emit onAuthReceived(false);
+        return;
+    }
+    emit authError("Unspecified authentication failure");
+}
+
+
+/*!
+ * \brief This method parses search responses from the server, and emits the appropriate
+ * signal based on the result.
+ *
+ * If the request has failed in any way, this method emits an error. Otherwise
+ * it just emits a signal containing the search results.
+ *
+ * \todo Testing to figure out what could go wrong here.
+ * \param obj
+ */
+void CommunicationHandler::handleSearchResponse(QJsonObject obj)
+{
+    if (obj["response"].toString() == "Error") {
+        // an error has occurred, emit an error message
+        emit searchError(obj["error"].toString());
+        return;
+    }
+    emit onSearchReceived(obj);
+}
+
+/*!
  * \brief This method handles connection to the remote server. Given a fully 
- * qualified host name this method safely initiates a new connection to that server.
+ * qualified host name this method safely initiates a new connection to that server,
+ * and negotiates the authentication handshake to ensure further data transmission.
  *
  * This method essentially everything needed for a socket connection to work,
  * namely hooking up signals and slots, error checking, etc. All of the core
@@ -100,7 +199,7 @@ void CommunicationHandler::sendMediaRequest(QString hash)
  */
 void CommunicationHandler::connectToServer(QString host)
 {
-    // we make sure that if an old socket instance exists, that it is
+    // we make sure that if an old socket instance exists, it is
     // completely and utterly destroyed before we move forward.
     if (socket) {
         socket->deleteLater();
@@ -122,10 +221,18 @@ void CommunicationHandler::connectToServer(QString host)
     QUrl hostUrl = QUrl::fromUserInput(host);
     if (!hostUrl.isValid()) {
         qWarning() << "Url invalid, what the hell Jeff validate your input!";
+        return;
     }
+
+    // ensures that we pass a websocket url no matter what
     hostUrl.setScheme("ws");
 
-    socket->connect(hostUrl);
+    socket->open(hostUrl);
+
+    // we then init and send an auth response to the server.
+    // TODO: hammer out a way to get the password from whereever it's stored
+    QString passwd = getPassword();
+    sendAuthRequest(passwd);
 }
 
 /*!
@@ -135,7 +242,7 @@ void CommunicationHandler::connectToServer(QString host)
  *
  * \param doc the QString from the socket.
  *
- * TODO: make this happen
+ * \todo make this happen
  */
 void CommunicationHandler::handleTextMessage(QString doc)
 {
@@ -146,9 +253,33 @@ void CommunicationHandler::handleTextMessage(QString doc)
         QString type = obj["response_type"].toString();
         
         if (type == "search") {
-            emit onSearchReceived(jdoc);
-        } else if (type == "")
+            handleSearchResponse(obj);
+;        } else if (type == "playlist") {
+            handlePlaylistResponse(obj);
+        } else if (type == "authentication") {
+            handleAuthResponse(obj);
+        }
     }
+}
+
+/*!
+ * \brief This method is called when the socket loses connection. It marshals
+ * all needed state and tries to re-establish the connection in a somewhat intelligent
+ * manner.
+ */
+void CommunicationHandler::reconnectToServer()
+{
+    // we emit a signal just in case anything else want to know that we've
+    // lost our connection
+    emit connectionLost();
+
+    // we then promptly try to reconnect.
+    // TODO: implement some kind of delay or stop just in case this cycle
+    // keeps looping forever
+    qDebug() << "Disconnected from server :(";
+    QHostAddress addr = socket->peerAddress();
+    qDebug() << "We're going to try to reconnect now...";
+    connectToServer(addr.toString());
 }
 
 /*!

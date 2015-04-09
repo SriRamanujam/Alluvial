@@ -17,8 +17,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     client.cpp \
-    communicationhandler.cpp
+    communicationhandler.cpp \
+    testclientdebug.cpp
 
 HEADERS += \
     client.h \
-    communicationhandler.h
+    communicationhandler.h \
+    testclientdebug.h
+
+CONFIG += c++11

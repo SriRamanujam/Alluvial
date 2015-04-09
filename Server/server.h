@@ -10,6 +10,9 @@
 #include <QJsonArray>
 #include <QFile>
 
+#include "clientconnection.h"
+#include "activesockets.h"
+
 class Server : public QObject
 {
     Q_OBJECT
@@ -28,6 +31,7 @@ private slots:
 private:
     QWebSocketServer *server;
     void initServer(quint64 port);
+    ActiveSockets *sockets;
 };
 
 #endif // SERVER_H

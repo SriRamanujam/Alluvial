@@ -10,6 +10,8 @@
 #include <QJsonObject>
 #include <QNetworkAccessManager>
 
+#include "communicationhandler.h"
+
 class Client : public QObject
 {
     Q_OBJECT
@@ -29,6 +31,7 @@ private slots:
 private:
     QMediaPlayer *player;
     QWebSocket* socket;
+    CommunicationHandler* commsHandler;
 
 
     //
