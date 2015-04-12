@@ -44,9 +44,6 @@ void ClientConnection::onTextMessageReceived(QString doc)
     qDebug("Received request from client");
     qDebug() << doc;
 
-    // I have no idea what this line does, but it gets us the sender's socket.
-//    QWebSocket *client = qobject_cast<QWebSocket *>(sender());
-
     QJsonDocument json = QJsonDocument::fromJson(doc.toUtf8());
     QJsonObject obj = json.object();
 
