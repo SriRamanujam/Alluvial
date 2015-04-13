@@ -147,7 +147,7 @@ void CommunicationHandler::handlePlaylistResponse(QJsonObject obj)
  */
 void CommunicationHandler::handleAuthResponse(QJsonObject obj)
 {
-    if (obj["Response"].toString() = "Error") {
+    if (obj["Response"].toString() ==  "Error") {
         // an error has occurred, emit an error message
         emit authError(obj["error"].toString());
         return;
@@ -231,7 +231,8 @@ void CommunicationHandler::connectToServer(QString host)
 
     // we then init and send an auth response to the server.
     // TODO: hammer out a way to get the password from whereever it's stored
-    QString passwd = getPassword();
+//    QString passwd = getPassword();
+    QString passwd = "123abc";
     sendAuthRequest(passwd);
 }
 

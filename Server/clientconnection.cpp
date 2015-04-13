@@ -41,7 +41,7 @@ ClientConnection::~ClientConnection()
  */
 void ClientConnection::onTextMessageReceived(QString doc)
 {
-    qDebug("Received request from client");
+    qDebug() << "Message received from client;";
     qDebug() << doc;
 
     QJsonDocument json = QJsonDocument::fromJson(doc.toUtf8());
@@ -145,12 +145,12 @@ void ClientConnection::_handleSearchReq(QJsonObject req)
     }
 
     // placeholder line, but API should be the same.
-    QJsonObject response = mediaHandler->search(query);
+//    QJsonObject response = mediaHandler->search(query);
 
 
     res["response_type"] = "search";
     res["query"] = query;
-    res["results"] = response;
+//    res["results"] = response;
 
     socket->sendTextMessage(QJsonDocument(res).toJson());
 }
@@ -169,9 +169,9 @@ void ClientConnection::_handleMediaReq(QJsonObject req)
     QString hash = req["request"].toObject()["hash"].toString();
 
     // TODO: placeholder code, but you get the idea.
-    QByteArray media = mediaHandler->getMediaFromHash(hash);
+//    QByteArray media = mediaHandler->getMediaFromHash(hash);
 
-    socket->sendBinaryMessage(media);
+//    socket->sendBinaryMessage(media);
 }
 
 /*!

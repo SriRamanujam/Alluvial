@@ -28,9 +28,10 @@ signals:
     void mediaReqParsed();
 
 public slots:
+    void onTextMessageReceived(QString doc);
 
 private slots:
-    void onTextMessageReceived(QString doc);
+
 
 private:
     QWebSocket *socket;

@@ -25,7 +25,7 @@ public slots:
 private slots:
     void debugPrintError(QAbstractSocket::SocketError error);
     void debugSendData();
-    void onTextMessageReceived(QString msg);
+//    void onTextMessageReceived(QString msg);
     void onBinaryMessageReceived(QByteArray data);
     void debugCloseClient();
 private:

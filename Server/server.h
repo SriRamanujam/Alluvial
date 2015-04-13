@@ -26,8 +26,8 @@ public slots:
 
 private slots:
     void handleResponse();
-    void onTextMessageReceived(QString doc);
-    void onTextFrameReceived(QString doc, bool last);
+//    void onTextMessageReceived(QString doc);
+//    void onTextFrameReceived(QString doc, bool last);
 private:
     QWebSocketServer *server;
     void initServer(quint64 port);
