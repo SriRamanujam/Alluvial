@@ -1,18 +1,20 @@
 #include "mediahandler.h"
 
 /*!
- * \brief MediaHandler::MediaHandler
+ * \brief This class provides a clean interface to the various modules involved
+ * in finding music.
  * \param parent
  */
 MediaHandler::MediaHandler(QObject *parent) : QObject(parent)
 {
+    searchQueue = new QQueue<SearchResult*>();
+    completedSearches = new QMap<QString, SearchResult*>();
     // Demo code, make it prettier and/or functional later.
-//    spotify = new SpotifyHandler();
-//    soundcloud = new SoundCloudHandler();
-//    db = new DatabaseHandler();
+    spotify = new SpotifyHandler();
+    soundcloud = new SoundCloudHandler();
+    db = new DatabaseHandler();
 
     // hook up our signals and our slots
-
 }
 
 MediaHandler::~MediaHandler()
@@ -21,14 +23,40 @@ MediaHandler::~MediaHandler()
 }
 
 /*!
- * \brief MediaHandler::search
+ * \brief This function returns a query string and returns a QJsonObject representing
+ * a "results" object. For more information regarding what exactly a "results" object is,
+ * consult JSON.md.
  * \param query
  * \return
  */
-QJsonObject MediaHandler::search(QString query)
+void MediaHandler::search(QString query)
 {
+    // we first create the object and enqueue it for processing.
+    SearchResult *search = new SearchResult(query);
+    searchQueue->enqueue(search);
 
+    // do something to make sure the thing goes
+    processQueue();
 }
+
+void MediaHandler::processQueue()
+{
+    SearchResult *head;
+    if (searchQueue->isEmpty()) {
+        return;
+    }
+
+    head = searchQueue->head();
+    if (head->SEARCH_COMPLETE) {
+        head = searchQueue->dequeue();
+        QJsonObject res = head->getSearchResultArray();
+        emit searchResultComplete(res);
+    } else {
+        return;
+    }
+}
+
+
 
 /*!
  * \brief This function implements the Levenshtein distance algorithm for calculating
@@ -59,4 +87,19 @@ unsigned int MediaHandler::levenshtein_distance(QString s1, QString s2)
         col.swap(prevCol);
     }
     return prevCol[len2];
+}
+
+void MediaHandler::onSpotifySearchComplete(QJsonObject obj)
+{
+
+}
+
+void MediaHandler::onSoundcloudSearchComplete(QJsonObject obj)
+{
+
+}
+
+void MediaHandler::onDbSearchComplete(QJsonObject obj)
+{
+
 }
