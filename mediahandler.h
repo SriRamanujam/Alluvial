@@ -1,9 +1,13 @@
 #ifndef MEDIAHANDLER_H
 #define MEDIAHANDLER_H
-
-#include <QJsonObject>
 #include <QObject>
+#include <QJsonObject>
 #include <QString>
+#include <QVector>
+#include <QQueue>
+#include <QMap>
+
+#include "searchresult.h"
 
 class MediaHandler : public QObject
 {
@@ -11,21 +15,26 @@ class MediaHandler : public QObject
 public:
     explicit MediaHandler(QObject *parent = 0);
     ~MediaHandler();
-    QJsonObject search(QString query);
+    void search(QString query);
+
+    unsigned int levenshtein_distance(QString s1, QString s2);
 
 signals:
+    void searchResultComplete(QJsonObject res);
+
 
 public slots:
 private:
-    unsigned int levenshtein_distance(QString s1, QString s2);
-//    SpotifyHandler *spotify;
-//    SoundCloudHandler *soundcloud;
-//    DatabaseHandler *db;
+    SpotifyHandler *spotify;
+    SoundCloudHandler *soundcloud;
+    DatabaseHandler *db;
+    QQueue<SearchResult*> *searchQueue;
+    QMap<QString, SearchResult*> *completedSearches;
+
+    void processQueue();
 
 private slots:
-    void onSpotifySearchComplete(QJsonObject obj);
-    void onSoundcloudSearchComplete(QJsonObject obj);
-    void onDbSearchComplete(QJsonObject obj);
+
 };
 
 #endif // MEDIAHANDLER_H
