@@ -3,7 +3,8 @@ TEMPLATE = app
 QT += qml quick widgets
 
 SOURCES += main.cpp \
-    mediahandler.cpp
+    mediahandler.cpp \
+    searchresult.cpp
 
 RESOURCES +=
 
@@ -14,4 +15,5 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 HEADERS += \
-    mediahandler.h
+    mediahandler.h \
+    searchresult.h
