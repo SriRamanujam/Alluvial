@@ -1,7 +1,5 @@
 #include "mediahandler.h"
 
-#include <QFile>
-
 /*!
  * \brief This class provides a clean interface to the various modules involved
  * in finding music
@@ -13,11 +11,21 @@ MediaHandler::MediaHandler(QObject *parent) : QObject(parent)
     completedSearches = new QMap<QString, SearchResult*>();
     // Demo code, make it prettier and/or functional later.
     spotify = new SpotifyHandler();
-    soundcloud = new SoundCloudHandler();
+    soundcloud = new SCHandler();
     db = new queryhandler();
     crypto = new SimpleCrypt(Q_UINT64_C(0x0x451823708829d4ce));
 
     // hook up our signals and our slots
+}
+
+void MediaHandler::retrievePlaylist(QString name)
+{
+    emit getPlaylistComplete(db->getPlaylist(name));
+}
+
+void MediaHandler::savePlaylist(QJsonObject playlist)
+{
+    db->save(playlist);
 }
 
 MediaHandler::~MediaHandler()
@@ -118,7 +126,7 @@ void MediaHandler::processQueue()
 
 
 
-///*!
+// /*!
 // * \brief This function implements the Levenshtein distance algorithm for calculating
 // * the degree of similarity between two strings. We use it to aid in determining whether
 // * two files are the same piece of music.

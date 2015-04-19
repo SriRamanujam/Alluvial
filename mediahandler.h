@@ -7,10 +7,12 @@
 #include <QQueue>
 #include <QStringList>
 #include <QMap>
+#include <QFile>
 
 #include "searchresult.h"
 #include "simplecrypt.h"
 #include "queryhandler.h"
+#include "schandler.h"
 
 class MediaHandler : public QObject
 {
@@ -21,16 +23,20 @@ public:
 
     QJsonObject search(QString query);
     QByteArray getMediaFromHash(QString hash);
+    void retrievePlaylist(QString name);
+    void savePlaylist(QJsonObject playlist);
+
     static SimpleCrypt *crypto;
 
 signals:
     void searchResultComplete(QJsonObject res);
+    void getPlaylistComplete(QJsonObject res);
 
 
 public slots:
 private:
     SpotifyHandler *spotify;
-    SoundCloudHandler *soundcloud;
+    SCHandler *soundcloud;
     queryhandler *db;
     QQueue<SearchResult*> *searchQueue;
     QMap<QString, SearchResult*> *completedSearches;

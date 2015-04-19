@@ -9,7 +9,8 @@ SOURCES += main.cpp \
     JSONhandler.cpp \
     queryhandler.cpp \
     songhandler.cpp \
-    databasehandler.cpp
+    databasehandler.cpp \
+    schandler.cpp
 
 RESOURCES +=
 
@@ -28,4 +29,5 @@ HEADERS += \
     JSONhandler.h \
     queryhandler.h \
     songhandler.h \
-    databasehandler.h
+    databasehandler.h \
+    schandler.h
