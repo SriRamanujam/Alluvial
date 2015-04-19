@@ -1,11 +1,15 @@
 TEMPLATE = app
 
-QT += qml quick widgets
+QT += qml quick widgets sql
 
 SOURCES += main.cpp \
     mediahandler.cpp \
     searchresult.cpp \
-    simplecrypt.cpp
+    simplecrypt.cpp \
+    JSONhandler.cpp \
+    queryhandler.cpp \
+    songhandler.cpp \
+    databasehandler.cpp
 
 RESOURCES +=
 
@@ -20,4 +24,8 @@ CONFIG += c++11
 HEADERS += \
     mediahandler.h \
     searchresult.h \
-    simplecrypt.h
+    simplecrypt.h \
+    JSONhandler.h \
+    queryhandler.h \
+    songhandler.h \
+    databasehandler.h

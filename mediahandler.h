@@ -10,6 +10,7 @@
 
 #include "searchresult.h"
 #include "simplecrypt.h"
+#include "queryhandler.h"
 
 class MediaHandler : public QObject
 {
@@ -30,11 +31,11 @@ public slots:
 private:
     SpotifyHandler *spotify;
     SoundCloudHandler *soundcloud;
-    DatabaseHandler *db;
+    queryhandler *db;
     QQueue<SearchResult*> *searchQueue;
     QMap<QString, SearchResult*> *completedSearches;
     
-    unsigned int levenshtein_distance(QString s1, QString s2);
+//    unsigned int levenshtein_distance(QString s1, QString s2);
 
 private slots:
     void processQueue();
