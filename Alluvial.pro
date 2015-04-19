@@ -4,7 +4,8 @@ QT += qml quick widgets
 
 SOURCES += main.cpp \
     mediahandler.cpp \
-    searchresult.cpp
+    searchresult.cpp \
+    simplecrypt.cpp
 
 RESOURCES +=
 
@@ -14,6 +15,9 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 
+CONFIG += c++11
+
 HEADERS += \
     mediahandler.h \
-    searchresult.h
+    searchresult.h \
+    simplecrypt.h

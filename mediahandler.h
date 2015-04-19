@@ -5,9 +5,11 @@
 #include <QString>
 #include <QVector>
 #include <QQueue>
+#include <QStringList>
 #include <QMap>
 
 #include "searchresult.h"
+#include "simplecrypt.h"
 
 class MediaHandler : public QObject
 {
@@ -15,9 +17,10 @@ class MediaHandler : public QObject
 public:
     explicit MediaHandler(QObject *parent = 0);
     ~MediaHandler();
-    void search(QString query);
 
-    unsigned int levenshtein_distance(QString s1, QString s2);
+    QJsonObject search(QString query);
+    QByteArray getMediaFromHash(QString hash);
+    static SimpleCrypt *crypto;
 
 signals:
     void searchResultComplete(QJsonObject res);
@@ -30,10 +33,11 @@ private:
     DatabaseHandler *db;
     QQueue<SearchResult*> *searchQueue;
     QMap<QString, SearchResult*> *completedSearches;
-
-    void processQueue();
+    
+    unsigned int levenshtein_distance(QString s1, QString s2);
 
 private slots:
+    void processQueue();
 
 };
 
