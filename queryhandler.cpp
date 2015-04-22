@@ -1,6 +1,6 @@
 #include "queryhandler.h"
 
-queryhandler::queryhandler()
+queryhandler::queryhandler(QObject *parent)
 {
 
 }
@@ -20,7 +20,8 @@ QByteArray queryhandler::getSong(QString pk)
 void queryhandler::search(QString query)
 {
     JSONHandler *json = new JSONHandler();
-    emit onSearchComplete(json->generateResults(query));
+    QJsonArray res = json->generateResults(query);
+    emit onSearchComplete(&res);
 }
 
 

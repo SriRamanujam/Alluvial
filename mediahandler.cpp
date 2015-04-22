@@ -1,5 +1,6 @@
 #include "mediahandler.h"
 
+
 /*!
  * \brief This class provides a clean interface to the various modules involved
  * in finding music
@@ -9,23 +10,24 @@ MediaHandler::MediaHandler(QObject *parent) : QObject(parent)
 {
     searchQueue = new QQueue<SearchResult*>();
     completedSearches = new QMap<QString, SearchResult*>();
-    // Demo code, make it prettier and/or functional later.
-    spotify = new SpotifyHandler();
+    /// Demo code, make it prettier and/or functional later.
+//    spotify = new SpotifyHandler();
     soundcloud = new SCHandler();
     db = new queryhandler();
-    crypto = new SimpleCrypt(Q_UINT64_C(0x0x451823708829d4ce));
+    crypto = new SimpleCrypt(Q_UINT64_C(0x451823708829d4ce));
 
-    // hook up our signals and our slots
+    /// hook up our signals and our slots
+    qDebug() << "SHIT WE RUNNIN NOW FAM";
 }
 
 void MediaHandler::retrievePlaylist(QString name)
 {
-    emit getPlaylistComplete(db->getPlaylist(name));
+//    emit getPlaylistComplete(db->getPlaylist(name));
 }
 
 void MediaHandler::savePlaylist(QJsonObject playlist)
 {
-    db->save(playlist);
+//    db->save(playlist);
 }
 
 MediaHandler::~MediaHandler()
@@ -44,14 +46,14 @@ QByteArray MediaHandler::getMediaFromHash(QString hash)
     QStringList split = decrypt_string.split(": ");
     QString type = split.at(0);
 
-    if (type == "spotify") {
-        return spotify->getSong(split.at(1));
-    } else if (type == "soundcloud") {
-        return soundcloud->getSong(split.at(1));
+    /// TODO: Re-add spotify
+    if (type == "soundcloud") {
+        return soundcloud->request_song(split.at(1));
     } else if (type == "db") {
         return db->getSong(split.at(1));
     } else {
-        // error handling passed up through here
+        /// error handling passed up through here
+        return QByteArray();
     }
 }
 
@@ -60,34 +62,35 @@ QByteArray MediaHandler::getMediaFromHash(QString hash)
  * \param query The search string
  * \return A QJsonObject representing the results of the query.
  */
-QJsonObject MediaHandler::search(QString query)
+void MediaHandler::search(QString query)
 {
-    // first, we check all the completed searches to see if the search has
-    // already been executed. If it has been, then we return those results
-    // instead of re-executing the search.
+    /// first, we check all the completed searches to see if the search has
+    /// already been executed. If it has been, then we return those results
+    /// instead of re-executing the search.
     if (completedSearches->contains(query)) {
-        emit searchResultComplete(completedSearches[query].getSearchResults()); // will this work?
+        QJsonObject res = completedSearches->value(query)->getSearchResults();
+        emit searchResultComplete(&res); // will this work?
         return;
     }
-    // we first create the object and enqueue it for processing.
+    /// we first create the object and enqueue it for processing.
     SearchResult *search = new SearchResult(query);
 
-    // we now hook up all the needed signals to this object to ensure its success
-    connect(search, SIGNAL(searchProcessingComplete()), SLOT(processQueue()));
-    connect(spotify, SIGNAL(onSearchComplete(QJsonArray)),
-            search, SLOT(onSpotifySearchComplete(QJsonArray)));
-    connect(db, SIGNAL(onSearchComplete(QJsonArray)),
-            search, SLOT(onDbSearchComplete(QJsonArray)));
-    connect(soundcloud, SIGNAL(onSearchComplete(QJsonArray)),
-            search, SLOT(onSoundcloudSearchComplete(QJsonArray)));
+    /// we now hook up all the needed signals to this object to ensure its success
+    connect(search, &SearchResult::searchProcessingComplete, this, &MediaHandler::processQueue);
+//    connect(spotify, SIGNAL(onSearchComplete(QJsonArray)),
+//            search, SLOT(onSpotifySearchComplete(QJsonArray)));
+    connect(db, &queryhandler::onSearchComplete,
+            search, &SearchResult::onDbSearchComplete);
+    connect(soundcloud, &SCHandler::onSearchComplete,
+            search, &SearchResult::onSoundcloudSearchComplete);
     searchQueue->enqueue(search);
 
-    // execute the searches
+    /// execute the searches
     db->search(query);
-    spotify->search(query);
-    soundcloud->search(query);
+//    spotify->search(query);
+    soundcloud->query(query);
 
-    // do something to make sure the thing goes
+    /// do something to make sure the thing goes
     processQueue();
 }
 
@@ -118,41 +121,8 @@ void MediaHandler::processQueue()
         head = searchQueue->dequeue();
         QJsonObject res = head->getSearchResults();
         completedSearches->insert(head->query, head);
-        emit searchResultComplete(res);
+        emit searchResultComplete(&res);
     } else {
         return;
     }
 }
-
-
-
-// /*!
-// * \brief This function implements the Levenshtein distance algorithm for calculating
-// * the degree of similarity between two strings. We use it to aid in determining whether
-// * two files are the same piece of music.
-// *
-// * The higher the number, the less similar the two strings are. Two of the same string
-// * passed in gives 0 as the result.
-// * \param s1
-// * \param s2 The strings to be compared
-// * \return an unsigned int representing the degree of similarity between the two strings.
-// * The higher the number, the less similar the two strings are.
-// */
-//unsigned int MediaHandler::levenshtein_distance(QString s1, QString s2)
-//{
-//    const int len1 = s1.size(), len2 = s2.size();
-//    QVector<unsigned int> col(len2+1), prevCol(len2+1);
-//    int i, j;
-
-//    for (i = 0; i < prevCol.size(); i++) {
-//        prevCol[i] = i;
-//    }
-//    for (i = 0; i < len1; i++) {
-//        col[0] = i+1;
-//        for (j = 0; j < len2; j++) {
-//            col[j+1] = std::min((prevCol[1+j] + 1, col[j] + 1), prevCol[j] + (s1[i]==s2[j] ? 0 : 1));
-//        }
-//        col.swap(prevCol);
-//    }
-//    return prevCol[len2];
-//}

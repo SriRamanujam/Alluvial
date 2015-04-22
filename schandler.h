@@ -27,15 +27,17 @@
  *        requests for downloadable songs from Soundcloud.
  */
 
-class SCHandler
+class SCHandler : public QObject
 {
-
+    Q_OBJECT
 private:
+signals:
+    void onSearchComplete(QJsonArray *arr);
 
 public:
     QJsonObject last_search;
     QJsonArray raw_results;
-    SCHandler();
+    SCHandler(QObject *parent = 0);
     ~SCHandler();
 
     /*!
@@ -51,7 +53,7 @@ public:
      \return an integer value denoting the number of search results found
              or -1 in the case of a failed query
     */
-    int query(QString value, QString key=QString("title"));
+    void query(QString value, QString key=QString("title"));
 
     QJsonObject format(QJsonValue initial);
 
@@ -72,7 +74,7 @@ public:
                     to which to save the file
      \return an integer value denoting the size of the file or -1 for an unsuccessful request
     */
-    int request_song(QString download_url, QString target=QString("./"));
+    QByteArray request_song(QString download_url, QString target=QString("./"));
 
 };
 #endif // SCHANDLER_H

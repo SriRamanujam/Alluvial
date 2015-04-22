@@ -5,14 +5,15 @@
 #include <QCryptographicHash>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QVariantList>
 
 #include "simplecrypt.h"
 
-class SearchResult
+class SearchResult : public QObject
 {
     Q_OBJECT
 public:
-    explicit SearchResult(QString query);
+    explicit SearchResult(QString query, QObject *parent = 0);
     ~SearchResult();
     bool SEARCH_COMPLETE;
 
@@ -28,19 +29,21 @@ private:
     bool DB_COMPLETE = false;
     SimpleCrypt *crypto;
 
-    QJsonArray dbRes;
-    QJsonArray scRes;
-    QJsonArray spotifyRes;
+    QJsonArray *dbRes;
+    QJsonArray *scRes;
+    QJsonArray *spotifyRes;
 
     QJsonObject fullResult;
+
+    QJsonArray resultsList;
 
     void constructFullResult();
     void insertObjectsIntoResults(QJsonArray *arr);
 
 public slots:
-    void onSpotifySearchComplete(QJsonArray obj);
-    void onSoundcloudSearchComplete(QJsonArray obj);
-    void onDbSearchComplete(QJsonArray obj);
+    void onSpotifySearchComplete(QJsonArray *obj);
+    void onSoundcloudSearchComplete(QJsonArray *obj);
+    void onDbSearchComplete(QJsonArray *obj);
 };
 
 #endif // SEARCHRESULT_H

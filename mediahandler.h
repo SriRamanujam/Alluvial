@@ -14,6 +14,8 @@
 #include "queryhandler.h"
 #include "schandler.h"
 
+///TODO: Re-add spotify
+
 class MediaHandler : public QObject
 {
     Q_OBJECT
@@ -21,21 +23,21 @@ public:
     explicit MediaHandler(QObject *parent = 0);
     ~MediaHandler();
 
-    QJsonObject search(QString query);
+    void search(QString query);
     QByteArray getMediaFromHash(QString hash);
     void retrievePlaylist(QString name);
     void savePlaylist(QJsonObject playlist);
 
-    static SimpleCrypt *crypto;
+    SimpleCrypt *crypto;
 
 signals:
-    void searchResultComplete(QJsonObject res);
+    void searchResultComplete(QJsonObject *res);
     void getPlaylistComplete(QJsonObject res);
 
 
 public slots:
 private:
-    SpotifyHandler *spotify;
+//    SpotifyHandler *spotify;
     SCHandler *soundcloud;
     queryhandler *db;
     QQueue<SearchResult*> *searchQueue;

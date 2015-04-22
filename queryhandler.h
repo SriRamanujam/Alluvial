@@ -5,17 +5,18 @@
 #include "songhandler.h"
 
 
-class queryhandler
+class queryhandler : public QObject
 {
+    Q_OBJECT
 public:
-    queryhandler();
+    queryhandler(QObject *parent = 0);
     ~queryhandler();
 
     QByteArray getSong(QString pk);
     void search(QString query);
 
 signals:
-    void onSearchComplete(QJsonArray arr);
+    void onSearchComplete(QJsonArray *arr);
 };
 
 #endif // QUERYHANDLER_H

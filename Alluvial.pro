@@ -10,7 +10,11 @@ SOURCES += main.cpp \
     queryhandler.cpp \
     songhandler.cpp \
     databasehandler.cpp \
-    schandler.cpp
+    schandler.cpp \
+    qtlibspotify.cpp \
+    qtlibspotifyhandler.cpp \
+    settings_storage.cpp \
+    jsonformatter.cpp
 
 RESOURCES +=
 
@@ -30,4 +34,13 @@ HEADERS += \
     queryhandler.h \
     songhandler.h \
     databasehandler.h \
-    schandler.h
+    schandler.h \
+    qtlibspotify.h \
+    qtlibspotifyhandler.h \
+    settings_storage.h \
+    jsonformatter.h \
+    ../appkey.h
+
+unix:!macx: LIBS += -ltag
+
+unix:!macx: LIBS += -lspotify

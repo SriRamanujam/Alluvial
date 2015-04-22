@@ -1,6 +1,6 @@
 #include "schandler.h"
 
-SCHandler::SCHandler()
+SCHandler::SCHandler(QObject *parent)
 {
     raw_results = QJsonArray();
     last_search = QJsonObject();
@@ -14,15 +14,15 @@ SCHandler::~SCHandler()
 
 
 //category: artist, title, user,
-int SCHandler::query(QString value, QString key){
-    QJsonObject last_search{
+void SCHandler::query(QString value, QString key){
+    QJsonObject last_search {
         {key, value}
     };
 
     if(value == NULL)
-        return -1;
+        return;
     if(key == NULL)
-        return -1;
+        return;
     //check to prevent same query twice? nah don't be dumb
 
     // create custom temporary event loop on stack
@@ -46,19 +46,19 @@ int SCHandler::query(QString value, QString key){
     QNetworkReply *reply = mgr.get(req);
     eventLoop.exec(); // blocks stack until "finished()" has been called
 
-    if (reply->error() == QNetworoundCloudkReply::NoError) {
+    if (reply->error() == QNetworkReply::NoError) {
         QJsonParseError err;
         QJsonDocument jsondoc = QJsonDocument(QJsonDocument::fromJson(QString(reply->readAll()).toUtf8(), &err)); //raw string to qtstring to bytecode to jsondoc fucking shit
         raw_results = jsondoc.array(); //take the pile of responses and make them an array so you can fucking do something with the
 
-        return raw_results.size();
+        emit onSearchComplete(&raw_results);
 
     }
     else {
         //failure
         qDebug() << "Failed query: " <<reply->errorString();
         delete reply;
-        return -1;
+        return;
     }
 }
 
@@ -83,7 +83,7 @@ QJsonObject SCHandler::format(QJsonValue initial){
     return media;
 }
 
-int SCHandler::request_song(QString download_url, QString target){
+QByteArray SCHandler::request_song(QString download_url, QString target){
 
     // create custom temporary event loop on stack
     QNetworkRequest request;
@@ -130,16 +130,14 @@ int SCHandler::request_song(QString download_url, QString target){
             QUrl aUrl(url);
             QFileInfo fileInfo=aUrl.path();
             qDebug() << fileInfo.fileName();
-            QFile file(target);
-            file.open(QIODevice::WriteOnly);
-            file.write(reply->readAll());
-            delete reply;
-            return file.size();
+//            QFile file(target);
+//            file.open(QIODevice::WriteOnly);
+            return reply->readAll();
         }
         else{
             qDebug() << "Failure on download request" <<reply->errorString();
             delete reply;
-            return -1;
+            return QByteArray();
         }
 
     }
@@ -147,6 +145,6 @@ int SCHandler::request_song(QString download_url, QString target){
         //failure
         qDebug() << "Failure on initial request" <<reply->errorString();
         delete reply;
-        return -1;
+        return QByteArray();
     }
 }
