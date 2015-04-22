@@ -8,6 +8,8 @@
 #include <QJsonArray>
 #include <QFile>
 
+#include "mediahandler.h"
+
 enum class MessageParseError {
     UnknownError = 0,
     InvalidRequestType = 1,
@@ -19,7 +21,7 @@ class ClientConnection : public QObject
     Q_OBJECT
 
 public:
-    explicit ClientConnection(QWebSocket *sock, QObject *parent = 0);
+    explicit ClientConnection(QWebSocket *sock, MediaHandler *mediaHandler, QObject *parent = 0);
     ~ClientConnection();
 
 signals:
@@ -31,10 +33,11 @@ public slots:
     void onTextMessageReceived(QString doc);
 
 private slots:
-
+    void returnSearchResponse(QJsonObject response);
 
 private:
     QWebSocket *socket;
+    MediaHandler *mediaHandler;
     QJsonObject mostRecentObj;
 
     //parsing methods

@@ -32,3 +32,6 @@
 *autosave
 build*/
 doc*
+
+appkey.h
+*.orig

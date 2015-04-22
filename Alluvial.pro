@@ -1,6 +1,6 @@
-TEMPLATE = app
+TEMPLATE = subdirs
 
-QT += qml quick widgets sql
+QT += qml quick widgets
 
 SOURCES += main.cpp
 

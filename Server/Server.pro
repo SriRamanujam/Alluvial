@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network websockets
+QT       += core sql network websockets
 
 QT       -= gui
 
@@ -18,13 +18,43 @@ TEMPLATE = app
 SOURCES += main.cpp \
     server.cpp \
     activesockets.cpp \
-    clientconnection.cpp
+    clientconnection.cpp \
+    databasehandler.cpp \
+    jsonformatter.cpp \
+    JSONHandler.cpp \
+    mediahandler.cpp \
+    playlisthandler.cpp \
+    qtlibspotify.cpp \
+    qtlibspotifyhandler.cpp \
+    queryhandler.cpp \
+    schandler.cpp \
+    searchresult.cpp \
+    settings_storage.cpp \
+    simplecrypt.cpp \
+    songhandler.cpp
 
 HEADERS += \
     server.h \
     activesockets.h \
-    clientconnection.h
+    clientconnection.h \
+    databasehandler.h \
+    jsonformatter.h \
+    JSONHandler.h \
+    mediahandler.h \
+    playlisthandler.h \
+    qtlibspotify.h \
+    qtlibspotifyhandler.h \
+    queryhandler.h \
+    schandler.h \
+    searchresult.h \
+    settings_storage.h \
+    simplecrypt.h \
+    songhandler.h
 
 CONFIG += c++11
 
 DISTFILES +=
+
+unix:!macx: LIBS += -ltag
+
+unix:!macx: LIBS += -lspotify

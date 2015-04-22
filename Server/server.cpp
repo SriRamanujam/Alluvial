@@ -18,6 +18,7 @@ Server::Server(QObject *parent) : QObject(parent)
                                   QWebSocketServer::NonSecureMode, this);
     initServer(8900);
     sockets = new ActiveSockets();
+    mediaHandler = new MediaHandler();
 
     // hook up our signal and slot so new connections are automatically handled.
     connect(server, SIGNAL(newConnection()), this, SLOT(handleResponse()));
@@ -66,7 +67,7 @@ void Server::handleResponse()
     qDebug() << "Client has connected";
 
     QWebSocket *socket = server->nextPendingConnection();
-    ClientConnection* conn = new ClientConnection(socket);
+    ClientConnection* conn = new ClientConnection(socket, mediaHandler);
     sockets->addConnection(conn);
 }
 /*!

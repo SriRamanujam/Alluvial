@@ -11,7 +11,7 @@ MediaHandler::MediaHandler(QObject *parent) : QObject(parent)
     searchQueue = new QQueue<SearchResult*>();
     completedSearches = new QMap<QString, SearchResult*>();
     /// Demo code, make it prettier and/or functional later.
-//    spotify = new SpotifyHandler();
+    spotify = new QtLibSpotifyHandler("mybutt", "yourbutt");
     soundcloud = new SCHandler();
     db = new queryhandler();
     crypto = new SimpleCrypt(Q_UINT64_C(0x451823708829d4ce));
@@ -69,7 +69,7 @@ void MediaHandler::search(QString query)
     /// instead of re-executing the search.
     if (completedSearches->contains(query)) {
         QJsonObject res = completedSearches->value(query)->getSearchResults();
-        emit searchResultComplete(&res); // will this work?
+        emit searchResultComplete(res); // will this work?
         return;
     }
     /// we first create the object and enqueue it for processing.
@@ -121,7 +121,7 @@ void MediaHandler::processQueue()
         head = searchQueue->dequeue();
         QJsonObject res = head->getSearchResults();
         completedSearches->insert(head->query, head);
-        emit searchResultComplete(&res);
+        emit searchResultComplete(res);
     } else {
         return;
     }

@@ -32,6 +32,7 @@ private:
     QWebSocketServer *server;
     void initServer(quint64 port);
     ActiveSockets *sockets;
+    MediaHandler *mediaHandler;
 };
 
 #endif // SERVER_H

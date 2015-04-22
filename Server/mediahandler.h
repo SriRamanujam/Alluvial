@@ -13,6 +13,7 @@
 #include "simplecrypt.h"
 #include "queryhandler.h"
 #include "schandler.h"
+#include "qtlibspotifyhandler.h"
 
 ///TODO: Re-add spotify
 
@@ -31,13 +32,13 @@ public:
     SimpleCrypt *crypto;
 
 signals:
-    void searchResultComplete(QJsonObject *res);
+    void searchResultComplete(QJsonObject res);
     void getPlaylistComplete(QJsonObject res);
 
 
 public slots:
 private:
-//    SpotifyHandler *spotify;
+    QtLibSpotifyHandler *spotify;
     SCHandler *soundcloud;
     queryhandler *db;
     QQueue<SearchResult*> *searchQueue;
