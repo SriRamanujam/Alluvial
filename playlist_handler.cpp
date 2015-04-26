@@ -381,6 +381,10 @@ void playlist_handler::changePlaylist(QString playlistTitle)
     }
 }
 
+/*!
+ * \brief playlist_handler::changeTrackListings Changes to the indexed playlist and displays the proper info
+ * \param index The index of the playlist changed to
+ */
 void playlist_handler::changeTrackListings(int index)
 {
     this->changePlaylist(index);
@@ -393,32 +397,7 @@ void playlist_handler::changeTrackListings(int index)
         qDebug() << "DataList" << i << ":" << QVariant(dataList);
     }
 
-    //qDebug() << "calling setTrackListings:" << QVariant::fromValue(dataList);
-
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    QObject *root = engine.rootObjects().first();
-    QObject *trackListings = root->findChild<QObject*>("trackListings");
-
-    if (trackListings)
-    {
-        qDebug() << "BEFORE:" << trackListings->property("model");
-        trackListings->setProperty("model", QVariant(dataList));
-        qDebug() << "AFTER:" << trackListings->property("model");
-        QObject *trackListings = root->findChild<QObject*>("trackListings");
-        qDebug() << "GETTING:" << trackListings->property("model");
-    }
-    else
-    {
-        qDebug() << "trackListings has not yet been set";
-    }
-
-    //qDebug() << "cppModel: " << engine.rootContext()->contextProperty("cppModel");
-    //engine.rootContext()->setContextProperty( "cppModel", QVariant::fromValue(dataList) );
-    //QObject *trackListings = root->findChild<QObject*>("trackListings");
-    //QMetaObject::invokeMethod(trackListings, "setTrackListings",
-    //    Q_ARG(QVariant, QVariant::fromValue(dataList)));
-
+    // TODO: Signal the QML that we changed the playlist and display proper info
 }
 
 
@@ -502,6 +481,11 @@ void playlist_handler::setVolume(int vol)
     player->setVolume(vol);
 }
 
+/*!
+ * \brief playlist_handler::startFastForward
+ * Increase the playback rate to skip ahead through the song.
+ * Also, sets the display to update every fraction of a second instead of a whole second.
+ */
 void playlist_handler::startFastForward()
 {
     player->setVolume(player->volume() / 3);
@@ -511,6 +495,13 @@ void playlist_handler::startFastForward()
     qDebug() << this->player->position();
 }
 
+/*!
+ * \brief playlist_handler::startRewind
+ * Set the playback rate to go backwards through a song.
+ * Also, sets the display to update every fraction of a second instead of a whole second.
+ *
+ * TODO: Currently broken for some unknown reason. Always skips to start of song instead of rewinding
+ */
 void playlist_handler::startRewind()
 {
     player->setVolume(player->volume() / 3);
@@ -520,6 +511,11 @@ void playlist_handler::startRewind()
     qDebug() << this->player->position();
 }
 
+/*!
+ * \brief playlist_handler::resetPlaybackRate Resumes the song at the normal playback rate.
+ * Also, adjusts the re-display notifier back to a whole second
+ * instead of wasting cycles every fraction of a second.
+ */
 void playlist_handler::resetPlaybackRate()
 {
     qDebug() << this->player->position();
@@ -531,11 +527,20 @@ void playlist_handler::resetPlaybackRate()
     qDebug() << this->player->position();
 }
 
+/*!
+ * \brief playlist_handler::childPositionChanged Emits a signal when the song position has changed.
+ * Only called when the notifier checks the value.
+ * \param position The position of the player in the song.
+ */
 void playlist_handler::childPositionChanged(qint64 position)
 {
     emit positionChanged(position);
 }
 
+/*!
+ * \brief playlist_handler::childDurationChanged Emits a signal when the song duration is loaded.
+ * This signal slots to the Playback Bar to fix the song end label.
+ */
 void playlist_handler::childDurationChanged()
 {
     int length = this->player->duration();
