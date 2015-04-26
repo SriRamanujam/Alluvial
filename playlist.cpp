@@ -97,7 +97,6 @@ QString playlist::name()
     return this->title;
 }
 
-
 /*!
  * \brief playlist::getSongs Get the vector containing all songs
  * \return Vector containing the songs
