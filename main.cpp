@@ -9,7 +9,6 @@
 #include <QMediaPlayer>
 #include "settings_storage.h"
 #include <QtQml>
-#include "mediaplayer.h"
 #include "playlist.h"
 #include "playlist_handler.h"
 #include "dataobject.h"
@@ -131,8 +130,8 @@ int main(int argc, char *argv[])
     QObject::connect(ph, SIGNAL(positionChanged(QVariant)),
         playbackSlider, SLOT(positionChanged(QVariant)));
 
-    QObject::connect(ph, SIGNAL(durationChanged()),
-        playbackSlider, SLOT(songDurationChanged(int)));
+    QObject::connect(ph, SIGNAL(durationChanged(QVariant)),
+        playbackSlider, SLOT(durationChanged(QVariant)));
 
     QObject::connect(shufButton, SIGNAL(clicked()),
         ph, SLOT(shuffleSwitch()));
@@ -149,20 +148,29 @@ int main(int argc, char *argv[])
     QObject::connect(playlistDropDown, SIGNAL(activePlaylistChanged(int)),
         ph, SLOT(changeTrackListings(int)));
 
-   playlist_item *newSong = new playlist_item("#0", "song 1", 5);
+    playlist_item *newSong0 = new playlist_item("#0", "song 0", 5);
+    playlist_item *newSong1 = new playlist_item("#1", "song 1", 5);
+    playlist_item *newSong2 = new playlist_item("#2", "song 2", 5);
+    playlist_item *newSong3 = new playlist_item("#3", "song 3", 5);
+    playlist_item *newSong4 = new playlist_item("#4", "song 4", 5);
+    playlist_item *newSong5 = new playlist_item("#5", "song 5", 5);
+    playlist_item *newSong6 = new playlist_item("#6", "song 6", 5);
+    playlist_item *newSong7 = new playlist_item("#7", "song 7", 5);
+    playlist_item *newSong8 = new playlist_item("#8", "song 8", 5);
+    playlist_item *newSong9 = new playlist_item("#9", "song 9", 5);
 
     ph->addPlaylist("Playlist 1");
-    ph->addSong(0, *newSong);
-    ph->addSong(0, *newSong);
-    ph->addSong(0, *newSong);
+    ph->addSong(0, *newSong0);
+    ph->addSong(0, *newSong1);
+    ph->addSong(0, *newSong2);
     ph->addPlaylist("Playlist 2");
-    ph->addSong(1, *newSong);
-    ph->addSong(1, *newSong);
+    ph->addSong(1, *newSong3);
+    ph->addSong(1, *newSong4);
     ph->addPlaylist("Playlist 3");
-    ph->addSong(2, *newSong);
-    ph->addSong(2, *newSong);
-    ph->addSong(2, *newSong);
-    ph->addSong(2, *newSong);
+    ph->addSong(2, *newSong5);
+    ph->addSong(2, *newSong6);
+    ph->addSong(2, *newSong7);
+    ph->addSong(2, *newSong8);
 
 	QStringList playlists;
     for ( int index = 0; index < ph->getPlaylists().size(); index++ )

@@ -75,7 +75,7 @@ signals:
     void setTrackListings(QStringList list);
 
     // Taken from the old mediaplayer class
-    void durationChanged(qint64);
+    void durationChanged(QVariant);
     void positionChanged(QVariant);
 
 private:

@@ -34,7 +34,6 @@ playlist_handler::playlist_handler()
         this, SLOT(childPositionChanged(qint64)));
     QObject::connect(this->player,SIGNAL(durationChanged(qint64)),
         this, SLOT(childDurationChanged()));
-    this->timer = new QTime();
 }
 
 playlist_handler::~playlist_handler()
@@ -541,5 +540,6 @@ void playlist_handler::childDurationChanged()
 {
     int length = this->player->duration();
     length = length / 1000;
-    emit durationChanged(length);
+    qDebug() << "playlist_handler::Duration change called:" << this->player->duration();
+    emit durationChanged(QVariant(length));
 }

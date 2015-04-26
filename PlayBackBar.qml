@@ -54,14 +54,17 @@ ColumnLayout {
                 updateValueWhileDragging: false
                 maximumValue: 100
 
-                function songDurationChanged(newMax)
+                function durationChanged(newMax)
                 {
                     console.log("New Max called");
+                    playbackSlider.maximumValue = newMax;
+                    var newMaxMins = newMax / 60;
+                    var newMaxSecs = newMax % 60;
+                    songEnd.text = Math.floor(newMaxMins) + ":" + newMaxSecs;
                 }
 
                 function positionChanged(text)
                 {
-                    console.log("skipTo called: " + text);
                     playbackSlider.value = text / 1000;
                 }
 
@@ -114,10 +117,6 @@ ColumnLayout {
                     objectName: "songEnd"
                     id: songEnd
                     anchors.right: parent.right
-
-                    onTextChanged: {
-                        console.log("SongEnd Text = " + songEnd.text)
-                    }
                 }
             }
         }
