@@ -18,9 +18,15 @@ public:
     void setSongLength(int);
 
 private:
-    QString hash; /**< The unique identifier for the song */
-    QString songName; /**< The title of the song for displaying purposes */
-    int songLength; /**< The song length in int form. 1:20 song would be 80 */
+    //! A songs unique identifier
+    /*! The hash that references where the song reference is saved in the server's database. */
+    QString hash;
+    //! The title of the song
+    /*! The title of the song that will be used when displaying a playlists' tracks in the PlaylistPanel */
+    QString songName; //< The title of the song for displaying purposes
+    //! The length of the song
+    /*! The length of a song saved in seconds, that may or may not be used when displaying a playlists' tracks */
+    int songLength; //< The song length in int form. 1:20 song would be 80
 };
 
 #endif // PLAYLIST_ITEM_H

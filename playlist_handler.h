@@ -79,14 +79,28 @@ signals:
     void positionChanged(QVariant);
 
 private:
-    std::vector<playlist> playlists; /**< Vector of all playlist structures */
-    int activePlaylist; /**< The index of the current active playlist */
-    int activeSong; /**< The index of the current song that is playing */
-    bool shuffle; /**< Boolean indicator - shuffle activated */
-    bool repeat; /**< Boolean indicator - repeat activated */
-    QTime timer;
+    //! All of the playlists
+    /*! A vector containing all of the playlists that are saved on the server, but displayed on the client.
+     * The saved info on the client is barebones for displaying purposes. Info is retrieved when a playlist
+     * is selected. */
+    std::vector<playlist> playlists;
+    //! The active playlist index
+    /*! The index of the active playlist in the vector of all saved playlists. */
+    int activePlaylist;
+    //! The active song index
+    /*! The index of the active song in the vector of a playlists' songs */
+    int activeSong;
+    //! A boolean value for the shuffle setting
+    /*! Indicates whether to shuffle through songs when next song is clicked, or to iterate through */
+    bool shuffle;
+    //! A boolean value for the repeat setting
+    /*! Indicates whether to repeat the same song when next song is clicked, or to iterate through */
+    bool repeat;
 
     // Taken from the old mediaplayer class
+    //! The media player object
+    /*! Controls all of the playback aspects of the actual media player.
+     * Used to be in the mediaplayer class. */
     QMediaPlayer *player;
 };
 
