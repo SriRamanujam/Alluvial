@@ -9,8 +9,7 @@ SOURCES += main.cpp \
     qtspotifythread.cpp \
     playlist_item.cpp \
     playlist.cpp \
-    playlist_handler.cpp \
-    dataobject.cpp
+    playlist_handler.cpp
 
 RESOURCES += qml.qrc
 
@@ -30,8 +29,7 @@ HEADERS += \
     qtspotifythread.h \
     playlist_item.h \
     playlist.h \
-    playlist_handler.h \
-    dataobject.h
+    playlist_handler.h
 DISTFILES += \
     qmldir.txt \
     Doxyfile
