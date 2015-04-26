@@ -27,8 +27,12 @@ public:
 public slots:
 
 private:
+    //! The playlist title
+    /*! The title of the playlist used for displaying purposes. Must be unique. */
     QString title;
-    std::vector<playlist_item> songs{}; /**< The array of the songs that belong to this playlist */
+    //! The songs for this playlist
+    /*! The array of the songs that belong to this playlist in a vector form. */
+    std::vector<playlist_item> songs{};
 };
 
 #endif // PLAYLIST_H
