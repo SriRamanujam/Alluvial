@@ -72,7 +72,7 @@ public slots:
     void childDurationChanged();
 
 signals:
-    void setTrackListings(QStringList list);
+    void setTrackListings(QVariant);
 
     // Taken from the old mediaplayer class
     void durationChanged(QVariant);

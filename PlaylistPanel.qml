@@ -121,8 +121,15 @@ ColumnLayout {
             }
 
             ListModel {
-                    id: hiderModel
+                id: hiderModel
+            }
+
+            ListModel {
+                id: cppModel
+                ListElement {
+                    name: ""
                 }
+            }
 
             ListView {
                 id: trackListings
@@ -132,6 +139,17 @@ ColumnLayout {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 model: cppModel
+
+                function changeListings( newTracks )
+                {
+                    cppModel.clear();
+                    console.log("changeListings called: " + newTracks);
+                    for ( var i = 0 ; i < newTracks.length ; i++ )
+                    {
+                        cppModel.insert(i, {"name": newTracks[i]});
+                        console.log(newTracks[i]);
+                    }
+                }
 
                 delegate: Rectangle {
                     id: trackItem

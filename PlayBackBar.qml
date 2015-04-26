@@ -56,7 +56,6 @@ ColumnLayout {
 
                 function durationChanged(newMax)
                 {
-                    console.log("New Max called");
                     playbackSlider.maximumValue = newMax;
                     var newMaxMins = newMax / 60;
                     var newMaxSecs = newMax % 60;

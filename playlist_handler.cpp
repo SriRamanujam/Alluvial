@@ -397,9 +397,9 @@ void playlist_handler::changeTrackListings(int index)
         qDebug() << "DataList" << i << ":" << QVariant(dataList);
     }
 
+    emit setTrackListings(QVariant::fromValue(dataList));
     // TODO: Signal the QML that we changed the playlist and display proper info
 }
-
 
 // Taken from old mediaplayer class
 /*!
@@ -432,7 +432,6 @@ void playlist_handler::play (QByteArray data)
 
     QMediaContent song = QMediaContent(QUrl::fromLocalFile(path.absolutePath() + "/tmp.mp3"));
     player->setMedia(song);
-    qDebug() << "Media set. Song duration:" << player->duration();
     player->setVolume(50);
     player->play();
 }

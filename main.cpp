@@ -55,7 +55,6 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType(QUrl("qrc:/GlobalVars.qml"), "Alluvial.Globals", 1, 0, "Globals");
     qmlRegisterType<Settings_storing>("AlluvialSettings", 0, 1, "ClientSettings");
 
-
 	QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
@@ -158,6 +157,9 @@ int main(int argc, char *argv[])
     QObject::connect(playlistDropDown, SIGNAL(activePlaylistChanged(int)),
         ph, SLOT(changeTrackListings(int)));
 
+    QObject::connect(ph, SIGNAL(setTrackListings(QVariant)),
+        trackListings, SLOT ( changeListings(QVariant)));
+
     playlist_item *newSong0 = new playlist_item("#0", "song 0", 5);
     playlist_item *newSong1 = new playlist_item("#1", "song 1", 5);
     playlist_item *newSong2 = new playlist_item("#2", "song 2", 5);
@@ -188,27 +190,8 @@ int main(int argc, char *argv[])
         playlists.append(ph->getPlaylist(index).getPlaylistTitle());
     }
 
-    QStringList songs;
-    for ( int index = 0; index < ph->getPlaylistSongNames(ph->getActivePlaylistIndex()).size(); index++ )
-    {
-        songs.append(ph->getPlaylistSongNames(ph->getActivePlaylistIndex()).at(index));
-    }
+    ph->changeTrackListings(0);
 
-    std::vector<playlist_item> songNameVector = ph->getActivePlaylist().getSongs();
-    QStringList songNameList;
-    for ( int i = 0 ; i < songNameVector.size() ; i++ )
-    {
-        songNameList.append(songNameVector.at(i).getSongName());
-    }
-    qDebug() << QVariant::fromValue(songNameList);
-
-    std::vector<QString> data = ph->getPlaylistSongNames(0);
-    QList<QObject*> dataList;
-    for ( int i = 0 ; i < data.size() ; i++ )
-    {
-        dataList.append(new DataObject(data.at(i)));
-    }
-    engine.rootContext()->setContextProperty("cppModel", QVariant::fromValue(dataList));
     engine.rootContext()->setContextProperty("playlistModel", QVariant::fromValue(playlists));
 
 	int appInt = app.exec();
