@@ -48,6 +48,14 @@ void playlist_handler::addPlaylist()
 {
     playlist *newPlaylist = new playlist();
     this->playlists.insert(this->playlists.end(), *newPlaylist);
+
+    QStringList dataList;
+    for ( int i = 0; i < this->getPlaylists().size() ; i++ )
+    {
+        dataList.append(this->getPlaylists().at(i).getPlaylistTitle());
+    }
+
+    emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
 /*!
@@ -57,6 +65,14 @@ void playlist_handler::addPlaylist()
 void playlist_handler::addPlaylist(playlist newPlaylist)
 {
     this->playlists.insert(this->playlists.end(), newPlaylist);
+
+    QStringList dataList;
+    for ( int i = 0; i < this->getPlaylists().size() ; i++ )
+    {
+        dataList.append(this->getPlaylists().at(i).getPlaylistTitle());
+    }
+
+    emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
 /*!
@@ -67,11 +83,23 @@ void playlist_handler::addPlaylist(QString playlistTitle)
 {
     playlist *newPlaylist = new playlist(playlistTitle);
     this->playlists.insert(this->playlists.end(), *newPlaylist);
+
+    QStringList dataList;
+    for ( int i = 0; i < this->getPlaylists().size() ; i++ )
+    {
+        dataList.append(this->getPlaylists().at(i).getPlaylistTitle());
+    }
+
+    emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
 void playlist_handler::addSong(int playlistIndex, playlist_item songToAdd)
 {
     this->playlists.at(playlistIndex).addSong(songToAdd);
+    if ( playlistIndex == this->activePlaylist )
+    {
+        emit changeTrackListings(playlistIndex);
+    }
 }
 
 /*!
@@ -80,6 +108,14 @@ void playlist_handler::addSong(int playlistIndex, playlist_item songToAdd)
 void playlist_handler::dropPlaylists()
 {
     this->playlists.erase(this->playlists.begin(),this->playlists.end());
+
+    QStringList dataList;
+    for ( int i = 0; i < this->getPlaylists().size() ; i++ )
+    {
+        dataList.append(this->getPlaylists().at(i).getPlaylistTitle());
+    }
+
+    emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
 /*!
@@ -96,6 +132,14 @@ void playlist_handler::dropPlaylist(playlist playlistToDrop)
             break;
         }
     }
+
+    QStringList dataList;
+    for ( int i = 0; i < this->getPlaylists().size() ; i++ )
+    {
+        dataList.append(this->getPlaylists().at(i).getPlaylistTitle());
+    }
+
+    emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
 /*!
@@ -112,6 +156,14 @@ void playlist_handler::dropPlaylist(QString playlistTitleToDrop)
             break;
         }
     }
+
+    QStringList dataList;
+    for ( int i = 0; i < this->getPlaylists().size() ; i++ )
+    {
+        dataList.append(this->getPlaylists().at(i).getPlaylistTitle());
+    }
+
+    emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
 void playlist_handler::dropSong(int playlistIndex, playlist_item songToDrop)
@@ -388,17 +440,14 @@ void playlist_handler::changePlaylist(QString playlistTitle)
 void playlist_handler::changeTrackListings(int index)
 {
     this->changePlaylist(index);
-    QStringList dataList;
 
+    QStringList dataList;
     for ( int i = 0; i < this->getActivePlaylist().getSongs().size() ; i++ )
     {
-        qDebug() << "Song" << i << ":" << this->getActivePlaylist().getSongs().at(i).getSongName();
         dataList.append(this->getActivePlaylist().getSongs().at(i).getSongName());
-        qDebug() << "DataList" << i << ":" << QVariant(dataList);
     }
 
     emit setTrackListings(QVariant::fromValue(dataList));
-    // TODO: Signal the QML that we changed the playlist and display proper info
 }
 
 // Taken from old mediaplayer class

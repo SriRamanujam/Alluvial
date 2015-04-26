@@ -16,16 +16,16 @@ ColumnLayout {
         State {
             name: "hidePlaylist"
             PropertyChanges {
-                target: playListPanel
-                width:0
-            }
-            PropertyChanges {
                 target: showPlaylistButton
                 text: '>>'
             }
             PropertyChanges {
                 target: trackListings
                 model: hiderModel
+            }
+            PropertyChanges {
+                target: playListPanel
+                width:0
             }
         },
         State {
@@ -76,8 +76,15 @@ ColumnLayout {
 
         color: '#E0E0E0'
 
-
         ComboBox {
+
+            ListModel {
+                id: playlistModel
+                ListElement {
+                    text: ""
+                }
+            }
+
             objectName: "dropdownPlaylistOptions"
             id: dropdownPlaylistOptions
             anchors.left: parent.left
@@ -86,11 +93,20 @@ ColumnLayout {
 
             model: playlistModel
 
+            function changePlaylistListings(newPlaylists)
+            {
+                playlistModel.clear();
+
+                for ( var i = 0 ; i < newPlaylists.length ; i++ )
+                {
+                    playlistModel.insert(i, {"text": newPlaylists[i]});
+                }
+            }
+
             signal activePlaylistChanged(int currentIndex);
 
             onCurrentIndexChanged: {
                 dropdownPlaylistOptions.activePlaylistChanged(dropdownPlaylistOptions.currentIndex);
-                console.log("Calling changeTrackListings " + currentIndex);
             }
         }
 
@@ -143,11 +159,9 @@ ColumnLayout {
                 function changeListings( newTracks )
                 {
                     cppModel.clear();
-                    console.log("changeListings called: " + newTracks);
                     for ( var i = 0 ; i < newTracks.length ; i++ )
                     {
                         cppModel.insert(i, {"name": newTracks[i]});
-                        console.log(newTracks[i]);
                     }
                 }
 
@@ -168,34 +182,7 @@ ColumnLayout {
                         text: '•' + name
                     }
                 }
-
-                function setTrackListings(songNames)
-                {
-                    console.log("setTrackListings has been called:" + songNames);
-                    console.log("Track Model Count: " + trackListings.model.count);
-
-                    for ( var i = trackListings.model.count-1 ; i >= 0 ; i-- )
-                    {
-                        console.log("Song " + (i+1) + " Pre Delete: " + trackListings.model.get(i).name);
-                    }
-
-                    console.log("Song names length: " + songNames.length);
-                    for (var i = 0 ; i < songNames.length ; i++)
-                    {
-                        var data = {name: songNames[i]};
-                        cppModel.append(data);
-                        console.log("Appending data " + i + ":" + songNames[i] + ": " + data.name);
-                    }
-
-                    /*for (var i = 0 ; i < trks.count ; i++)
-                    {
-                        console.log("Song " + (i+1) + ": " + trks.get(i).name);
-                    }*/
-                    //console.log("Tracks Model length: " + trackListings.model.count)
-                }
-
             }
-
         }
     }
 }
