@@ -36,6 +36,16 @@ void *initSpotifyFromMain(void* sp_arguments){
     spotifyObj->closing();
 }
 
+/*! \mainpage About Alluvial
+ *
+ * \section intro_sec Introduction
+ *
+ * Alluvial is a media streaming application that allows users to stream media from their private libraries
+ * across the internet to where ever the user may be.
+ * It also allows querying of music from Spotify and SoundCloud.
+ *
+ */
+
 int main(int argc, char *argv[])
 {
     FLAG_CLOSING = false;
