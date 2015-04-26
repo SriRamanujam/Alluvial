@@ -3,10 +3,16 @@
 #include "dataobject.h"
 #include <vector>
 #include <QDebug>
-#include <QQmlApplicationEngine>
 #include <QAbstractListModel>
 #include <QQmlContext>
 #include <QQuickView>
+#include <math.h>
+#include <QFile>
+#include <QMediaPlayer>
+#include <QFileInfo>
+#include <QDir>
+#include <QQmlComponent>
+#include <QByteArray>
 
 /*!
  * \brief playlist_handler::playlist_handler The wrapper for all playlists to be saved.
@@ -22,6 +28,13 @@ playlist_handler::playlist_handler()
     this->activeSong = 0;
     this->shuffle = false;
     this->repeat = false;
+    player = new QMediaPlayer();
+    this->player->setNotifyInterval(1000);
+    QObject::connect(this->player,SIGNAL(positionChanged(qint64)),
+        this, SLOT(childPositionChanged(qint64)));
+    QObject::connect(this->player,SIGNAL(durationChanged(qint64)),
+        this, SLOT(childDurationChanged()));
+    this->timer = new QTime();
 }
 
 playlist_handler::~playlist_handler()
@@ -112,14 +125,24 @@ void playlist_handler::dropSong(int playlistIndex, playlist_item songToDrop)
 */
 void playlist_handler::nextSong()
 {
-    this->activeSong = this->activeSong + 1;
-    if ( this->activeSong >= this->playlists.at(this->activePlaylist).getSongs().size() )
+    int currentlyActiveSong = this->activeSong;
+    if ( this->shuffle )
     {
-        this->activeSong = 0;
+        while ( this->activeSong == currentlyActiveSong && this->playlists.size() > 1 )
+        {
+            this->activeSong = rand() % this->playlists.size();
+        }
+    }
+    else
+    {
+        this->activeSong = this->activeSong + 1;
+        if ( this->activeSong >= this->playlists.at(this->activePlaylist).getSongs().size() )
+        {
+            this->activeSong = 0;
+        }
     }
 
     qDebug() << "Active Song Index:" << this->activeSong;
-
 }
 
 /*!
@@ -127,11 +150,23 @@ void playlist_handler::nextSong()
  */
 void playlist_handler::previousSong()
 {
-    this->activeSong = this->activeSong - 1;
-    if ( this->activeSong < 0 )
+    int currentlyActiveSong = this->activeSong;
+    if ( this->shuffle )
     {
-        this->activeSong = this->playlists.at(activePlaylist).getSongs().size() - 1;
+        while ( this->activeSong == currentlyActiveSong && this->playlists.size() > 1 )
+        {
+            this->activeSong = rand() % this->playlists.size();
+        }
     }
+    else
+    {
+        this->activeSong = this->activeSong - 1;
+        if ( this->activeSong < 0 )
+        {
+            this->activeSong = this->playlists.at(activePlaylist).getSongs().size() - 1;
+        }
+    }
+
     qDebug() << "Active Song Index:" << this->activeSong;
 }
 
@@ -177,7 +212,6 @@ playlist playlist_handler::getPlaylist(int index)
 {
     return this->playlists[index];
 }
-
 
 /*!
  * \brief playlist_handler::getPlaylistNames Get a list containing all playlist names
@@ -302,7 +336,7 @@ void playlist_handler::repeatSwitch()
     {
         this->repeat = true;
     }
-
+    qDebug() << "Repeat has been switched:" << this->repeat;
 }
 
 /*!
@@ -318,6 +352,7 @@ void playlist_handler::shuffleSwitch()
     {
         this->shuffle = true;
     }
+    qDebug() << "Shuffle has been switched:" << this->shuffle;
 }
 
 /*!
@@ -328,6 +363,7 @@ void playlist_handler::changePlaylist(int newIndex)
 {
     this->setActivePlaylistIndex(newIndex);
     this->setActiveSongIndex(0);
+    qDebug() << "Playlist has been changed:" << this->getActivePlaylist().getPlaylistTitle();
 }
 
 /*!
@@ -386,3 +422,124 @@ void playlist_handler::changeTrackListings(int index)
 
 }
 
+
+// Taken from old mediaplayer class
+/*!
+ * \brief ::play Continue the song to play
+ */
+void playlist_handler::play ()
+{
+    player->play();
+}
+
+/*!
+ * \brief playlist_handler::play Play a brand new song
+ * \param data The data of the song to play
+ */
+void playlist_handler::play (QByteArray data)
+{
+    QFile tmp_file("tmp.mp3");
+    QDir path = QDir::currentPath();
+
+    if(!tmp_file.open(QIODevice::WriteOnly)) {
+        qDebug() << "opening location didn't work";
+        return ;
+    }
+
+    if(tmp_file.write(data) < 0) {
+        qDebug() << "file write failed" << tmp_file.errorString();
+        return ;
+    }
+    tmp_file.close();
+
+    QMediaContent song = QMediaContent(QUrl::fromLocalFile(path.absolutePath() + "/tmp.mp3"));
+    player->setMedia(song);
+    qDebug() << "Media set. Song duration:" << player->duration();
+    player->setVolume(50);
+    player->play();
+}
+
+/*!
+ * \brief playlist_handler::pause Pause the current song
+ */
+void playlist_handler::pause ()
+{
+    player->pause();
+}
+
+/*!
+ * \brief playlist_handler::playOrPause Switch the playback state
+ */
+void playlist_handler::playOrPause()
+{
+    int state = player->state();
+
+    if (state == 1)
+    {
+        this->pause();
+    }
+    else
+    {
+        this->play();
+    }
+}
+
+/*!
+ * \brief playlist_handler::skipTo Jump to a specific position in the song
+ * \param position The position to jump to in milliseconds
+ */
+void playlist_handler::skipTo(int position)
+{
+    // position in milliseconds
+    player->setPosition(position);
+}
+
+/*!
+ * \brief playlist_handler::setVolume Change the playback volume
+ * \param vol The value to change to on a scale of 1 - 100
+ */
+void playlist_handler::setVolume(int vol)
+{
+    player->setVolume(vol);
+}
+
+void playlist_handler::startFastForward()
+{
+    player->setVolume(player->volume() / 3);
+    player->setPlaybackRate(10);
+    this->player->setNotifyInterval(1000/10);
+    qDebug() << "Playback rate =" << player->playbackRate();
+    qDebug() << this->player->position();
+}
+
+void playlist_handler::startRewind()
+{
+    player->setVolume(player->volume() / 3);
+    this->player->setPlaybackRate(-6);
+    this->player->setNotifyInterval(1000/6);
+    qDebug() << "Playback rate =" << player->playbackRate();
+    qDebug() << this->player->position();
+}
+
+void playlist_handler::resetPlaybackRate()
+{
+    qDebug() << this->player->position();
+    player->setVolume(player->volume() * 3);
+    player->play();
+    player->setPlaybackRate(1);
+    this->player->setNotifyInterval(1000);
+    qDebug() << "Playback rate reset";
+    qDebug() << this->player->position();
+}
+
+void playlist_handler::childPositionChanged(qint64 position)
+{
+    emit positionChanged(position);
+}
+
+void playlist_handler::childDurationChanged()
+{
+    int length = this->player->duration();
+    length = length / 1000;
+    emit durationChanged(length);
+}

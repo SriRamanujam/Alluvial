@@ -16,7 +16,6 @@
 #include <QtCore>
 #include <thread>
 #include <chrono>
-
 #include <qtlibspotify.h>
 
 #define NUM_OF_THREADS 4
@@ -64,8 +63,14 @@ int main(int argc, char *argv[])
     spotifyCreds.thread_id=1;
     spotifyCreds.username = username.toString();
     spotifyCreds.password = password.toString();
-    mediaPlayer *mp = new mediaPlayer();
+
     playlist_handler *ph = new playlist_handler();
+
+    QDir homePath = QDir::currentPath() + "/../Alluvial";
+    QFile example(homePath.absolutePath() + "/music/GiDeMo/Rain Song.mp3");
+    example.open(QIODevice::ReadOnly);
+    QByteArray dat = example.readAll();
+    ph->play(dat);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     engine.rootContext()->setContextProperty("clientSettings", settings);
@@ -73,8 +78,10 @@ int main(int argc, char *argv[])
     QObject *playButton = root->findChild<QObject*>("playButton");
     QObject *playbackSlider = root->findChild<QObject*>("playbackSlider");
     QObject *volSlider = root->findChild<QObject*>("volumeSlider");
+
     QObject *rwButton = root->findChild<QObject*>("rewindButton");
     QObject *ffButton = root->findChild<QObject*>("fastForwardButton");
+
     QObject *leftSkip = root->findChild<QObject*>("leftSkipButton");
     QObject *rightSkip = root->findChild<QObject*>("rightSkipButton");
     QObject *shufButton = root->findChild<QObject*>("shuffleButton");
@@ -97,32 +104,35 @@ int main(int argc, char *argv[])
 
     // Pause or play the song
     QObject::connect(playButton, SIGNAL(playClicked()),
-        mp, SLOT(playOrPause()));
-/*
-    view->rootContext()->setContextProperty("settings", settings);
-    view->setSource();
-    view->showNormal();
-    */
+        ph, SLOT(playOrPause()));
 
-// Adjust the volume according to the position of the volume slider
+    // Adjust the volume according to the position of the volume slider
     QObject::connect(volSlider, SIGNAL(changeVol(int)),
-        mp, SLOT(setVolume(int)));
+        ph, SLOT(setVolume(int)));
+    volSlider->setProperty("value", 50);
 
-    // Skip back - NEEDS TO BE FIXED TO HANDLE HOLD DOWN
-    QObject::connect(rwButton, SIGNAL(clicked()),
-        mp, SLOT(rewind()));
+    QObject::connect(rwButton, SIGNAL(startRewind()),
+        ph, SLOT(startRewind()));
 
-    // Skip ahead - NEEDS TO BE FIXED TO HANDLE HOLD DOWN
-    QObject::connect(ffButton, SIGNAL(clicked()),
-        mp, SLOT(fastForward()));
+    QObject::connect(ffButton, SIGNAL(startFastForward()),
+        ph, SLOT(startFastForward()));
+
+    QObject::connect(rwButton, SIGNAL(endRewind()),
+        ph, SLOT(resetPlaybackRate()));
+
+    QObject::connect(ffButton, SIGNAL(endFastForward()),
+        ph, SLOT(resetPlaybackRate()));
 
     // Skip to position based off of the slider
     QObject::connect(playbackSlider, SIGNAL(playbackPosChanged(int)),
-        mp, SLOT(skipTo(int)));
+        ph, SLOT(skipTo(int)));
 
-    // Skip to position based off of the slider
-    QObject::connect(playbackSlider, SIGNAL(playbackPosChanged(int)),
-        mp, SLOT(skipTo(int)));
+    // Progress the music bar based off of the song position
+    QObject::connect(ph, SIGNAL(positionChanged(QVariant)),
+        playbackSlider, SLOT(positionChanged(QVariant)));
+
+    QObject::connect(ph, SIGNAL(durationChanged()),
+        playbackSlider, SLOT(songDurationChanged(int)));
 
     QObject::connect(shufButton, SIGNAL(clicked()),
         ph, SLOT(shuffleSwitch()));
@@ -183,13 +193,6 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("cppModel", QVariant::fromValue(dataList));
     engine.rootContext()->setContextProperty("playlistModel", QVariant::fromValue(playlists));
 
-
-
-
-    QObject *topLevel = engine.rootObjects().value(0);
-    QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
-
-    window->show();
 	int appInt = app.exec();
 
     return appInt;

@@ -5,6 +5,10 @@
 #include <QObject>
 #include <QStringList>
 #include <QQmlApplicationEngine>
+#include <QByteArray>
+#include <QMediaPlayer>
+#include <QObject>
+#include <QTime>
 
 class playlist_handler:public QObject
 {
@@ -41,6 +45,11 @@ public:
     void setShuffle(bool);
     void setRepeat(bool);
 
+    // Taken from the old mediaplayer class
+    void play(QByteArray);
+    double getMediaDuration();
+    int positionChanged();
+
 public slots:
     void repeatSwitch();
     void shuffleSwitch();
@@ -50,8 +59,24 @@ public slots:
     void previousSong();
     void nextSong();
 
+    // Taken from the old mediaplayer class
+    void play();
+    void pause();
+    void skipTo(int);
+    void playOrPause();
+    void setVolume(int);
+    void startRewind();
+    void startFastForward();
+    void resetPlaybackRate();
+    void childPositionChanged(qint64);
+    void childDurationChanged();
+
 signals:
     void setTrackListings(QStringList list);
+
+    // Taken from the old mediaplayer class
+    void durationChanged(qint64);
+    void positionChanged(QVariant);
 
 private:
     std::vector<playlist> playlists; /**< Vector of all playlist structures */
@@ -59,6 +84,10 @@ private:
     int activeSong; /**< The index of the current song that is playing */
     bool shuffle; /**< Boolean indicator - shuffle activated */
     bool repeat; /**< Boolean indicator - repeat activated */
+    QTime timer;
+
+    // Taken from the old mediaplayer class
+    QMediaPlayer *player;
 };
 
 #endif // PLAYLIST_HANDLER_H
