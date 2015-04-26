@@ -35,7 +35,7 @@ Rectangle {
 
         MouseArea {
             anchors.fill: parent
-            onDoubleClicked: {
+            onClicked: {
                 searchResultsButtons.state = "songSearchResultsUpFront"
             }
         }
@@ -60,7 +60,7 @@ Rectangle {
 
         MouseArea {
             anchors.fill: parent
-            onDoubleClicked: {
+            onClicked: {
                 searchResultsButtons.state = "albumSearchResultsUpFront"
             }
         }

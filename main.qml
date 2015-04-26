@@ -123,8 +123,8 @@ ApplicationWindow {
             id:searchResultsPane
             color: "#000000"
 
-            anchors.left: parent.left
-            anchors.right: playListPanel.left
+            anchors.left: playListPanel.right
+            anchors.right: parent.right
             anchors.top: searchBarTextField.bottom
             anchors.bottom: playBackBar.top
         }

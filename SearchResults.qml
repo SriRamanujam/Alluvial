@@ -6,8 +6,18 @@ Rectangle {
     id: searchResultsRoot
     state: "showSongSearchResults"
 
+    Rectangle {
+        id: searchResultsSpace
+        width: 40
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        color: "#ffffff"
+    }
+
     SearchResultsHeader {
         id: searchResultsButtons
+        anchors.left: parent.left
         z: 2
     }
 
@@ -15,14 +25,14 @@ Rectangle {
         id:songResultsRow
         anchors.top: searchResultsButtons.bottom
         anchors.bottom: parent.bottom
-        anchors.left:parent.left
+        anchors.left:searchResultsSpace.right
     }
 
     SearchResultsAlbumSubList{
         id:albumResultsRow
         anchors.top: searchResultsButtons.bottom
         anchors.bottom: parent.bottom
-        anchors.left:parent.left
+        anchors.left: parent.left
     }
 
     states: [ State {
