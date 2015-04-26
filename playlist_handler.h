@@ -38,8 +38,6 @@ public:
     bool getShuffle();
     bool getRepeat();
 
-    void jumpToSong(QString);
-    void jumpToSong(int);
     void setActivePlaylistIndex(int);
     void setActiveSongIndex(int);
     void setShuffle(bool);
@@ -58,6 +56,9 @@ public slots:
     void changePlaylist(QString);
     void previousSong();
     void nextSong();
+    void jumpToSong(QString);
+    void jumpToSong(int);
+    void metaDataChanged();
 
     // Taken from the old mediaplayer class
     void play();
@@ -75,6 +76,7 @@ signals:
     void setTrackListings(QVariant);
     void setPlaylistListings(QVariant);
     void changeActiveSong(QVariant);
+    void displayData(QVariant);
 
     // Taken from the old mediaplayer class
     void durationChanged(QVariant);

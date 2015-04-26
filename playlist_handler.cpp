@@ -34,6 +34,8 @@ playlist_handler::playlist_handler()
         this, SLOT(childPositionChanged(qint64)));
     QObject::connect(this->player,SIGNAL(durationChanged(qint64)),
         this, SLOT(childDurationChanged()));
+    QObject::connect(this->player, SIGNAL(metaDataChanged()),
+        this, SLOT(metaDataChanged()));
 }
 
 playlist_handler::~playlist_handler()
@@ -597,4 +599,15 @@ void playlist_handler::childDurationChanged()
     length = length / 1000;
     qDebug() << "playlist_handler::Duration change called:" << this->player->duration();
     emit durationChanged(QVariant(length));
+}
+
+void playlist_handler::metaDataChanged()
+{
+    QStringList metadata;
+
+    metadata.append(this->player->metaData("AlbumArtist").toString());
+    metadata.append(this->player->metaData("AlbumTitle").toString());
+    metadata.append(this->player->metaData("Title").toString());
+
+    emit displayData(QVariant::fromValue(metadata));
 }

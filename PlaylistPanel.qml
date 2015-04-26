@@ -110,6 +110,7 @@ ColumnLayout {
             signal activePlaylistChanged(int currentIndex);
 
             onCurrentIndexChanged: {
+                trackListings.index = 0;
                 dropdownPlaylistOptions.activePlaylistChanged(dropdownPlaylistOptions.currentIndex);
             }
         }
@@ -177,15 +178,12 @@ ColumnLayout {
                 highlight: highlight
                 property int index: 0
 
+                signal activeSongChanged(int newIndex);
+
                 function changeActiveSong( newIndex )
                 {
                     trackListings.index = newIndex
                     trackListings.currentIndex = newIndex;
-                }
-
-                onCurrentIndexChanged: {
-                    console.log("Current index: " + trackListings.currentIndex);
-                    console.log("Index: " + trackListings.index);
                 }
 
                 function changeListings( newTracks )
@@ -208,8 +206,10 @@ ColumnLayout {
                     MouseArea {
                         anchors.fill: parent
                         onDoubleClicked: {
-                            mainWindow.state = "showItemDetailView"
-                            console.log("Song clicked from playlist pane: " + name)
+                            trackListings.changeActiveSong(index);
+                            trackListings.activeSongChanged(index);
+                            mainWindow.state = "showItemDetailView";
+                            console.log("Song clicked from playlist pane: " + name);
                         }
                     }
                     Text {

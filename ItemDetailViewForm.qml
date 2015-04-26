@@ -16,21 +16,19 @@ Item {
 
     QtObject {
         id: songMeta
-        property string hash: Globals.hash
-        property string songName: Globals.songName
-        property string album: Globals.album
-        property string albumArt: Globals.albumArt
-        property string artist: Globals.artist
-        property int length: Globals.length
-        property double size: Globals.size
+        objectName: "songMeta"
+        property string hash: ""
+        property string songName: ""
+        property string album: ""
+        property string albumArt: "container-background.jpg"
+        property string artist: ""
+        property int length: 0
 
-        onHashChanged: {
-            songName: Globals.songName
-            album: Globals.album
-            albumArt: Globals.albumArt
-            artist: Globals.artist
-            length: Globals.length
-            size: Globals.size
+        function infoChanged(info)
+        {
+            songMeta.artist = info[0];
+            songMeta.album = info[1];
+            songMeta.songName = info[2];
         }
     }
 

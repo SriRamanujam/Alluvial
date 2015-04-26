@@ -15,7 +15,6 @@
         <file>FileBrowser.qml</file>
         <file>Scrollbar.qml</file>
         <file>SearchResultsHeader.qml</file>
-        <file>GlobalVars.qml</file>
         <file>qmldir.txt</file>
         <file>LoginScreen.qml</file>
         <file>icons/fastForward.png</file>

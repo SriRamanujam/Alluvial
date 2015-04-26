@@ -94,6 +94,8 @@ int main(int argc, char *argv[])
     QObject *rightSkip = root->findChild<QObject*>("rightSkipButton");
     QObject *shufButton = root->findChild<QObject*>("shuffleButton");
     QObject *repButton = root->findChild<QObject*>("repeatButton");
+
+    QObject *metadata = root->findChild<QObject*>("songMeta");
     // Initializing the spotify stuff.  This particular is used for testing and SHOULD be changed later on.
     //spotifyThread_id = pthread_create(spotifyThread, NULL, initSpotifyFromMain, (void*)&spotifyCreds);
 
@@ -108,11 +110,16 @@ int main(int argc, char *argv[])
     QUrl url("file:///home/jefferson/Code/Alluvial/Alluvial");
     QObject *playlistDropDown = root->findChild<QObject*>("dropdownPlaylistOptions");
     QObject *trackListings = root->findChild<QObject*>("trackListings");
-    QObject *trackModel = root->findChild<QObject*>("trackModel");
+
+    QObject::connect(ph, SIGNAL(displayData(QVariant)),
+        metadata, SLOT(infoChanged(QVariant)));
 
     // Pause or play the song
     QObject::connect(playButton, SIGNAL(playClicked()),
         ph, SLOT(playOrPause()));
+
+    QObject::connect(trackListings, SIGNAL(activeSongChanged(int)),
+        ph, SLOT(jumpToSong(int)));
 
     // Adjust the volume according to the position of the volume slider
     QObject::connect(volSlider, SIGNAL(changeVol(int)),
