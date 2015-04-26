@@ -3,6 +3,7 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import Alluvial.Globals 1.0
 import QtMultimedia 5.4
+import QtQuick.Controls.Styles 1.2
 
 ColumnLayout {
     width: parent.width
@@ -42,24 +43,6 @@ ColumnLayout {
             anchors.top: parent.top
             height: parent.height * 0.5
 
-            Timer {
-                id: timer
-                interval: 1000
-                repeat: true
-                triggeredOnStart: false
-                onTriggered: {
-                    if (playbackSlider.value >= playbackSlider.maximumValue)
-                    {
-                        timer.stop
-                        playButton.state == 'pause'
-                    }
-                    else
-                    {
-                        playbackSlider.value += 1
-                    }
-                }
-            }
-
             Slider {
                 objectName: "playbackSlider"
                 id: playbackSlider
@@ -69,12 +52,26 @@ ColumnLayout {
                 stepSize: 1
                 tickmarksEnabled: false
                 updateValueWhileDragging: false
+                maximumValue: 100
+
+                function songDurationChanged(newMax)
+                {
+                    console.log("New Max called");
+                }
+
+                function positionChanged(text)
+                {
+                    console.log("skipTo called: " + text);
+                    playbackSlider.value = text / 1000;
+                }
 
                 signal playbackPosChanged(int val);
 
-                onValueChanged: {
-                    playbackSlider.playbackPosChanged(playbackSlider.value*1000)
+                onPressedChanged: {
+                    playbackSlider.playbackPosChanged(playbackSlider.value*1000);
+                }
 
+                onValueChanged: {
                     if (playbackSlider.value >= playbackSlider.maximumValue)
                     {
                         playButton.state = 'pause'
@@ -140,7 +137,7 @@ ColumnLayout {
                 anchors.leftMargin: parent.width * 0.05
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                width: parent.width * 0.3
+                width: parent.width * 0.2
 
                 ToolButton {
                     objectName: "shuffleButton"
@@ -148,6 +145,7 @@ ColumnLayout {
                     anchors.left: parent.left
                     anchors.leftMargin: parent.width * 0.05
                     y: (parent.height - this.height) / 2
+                    height: 200
                     text: "SHF"
                     state: "released"
 
@@ -237,31 +235,48 @@ ColumnLayout {
             RowLayout {
                 id: mediaOptions
                 anchors.centerIn: parent
-                Layout.fillWidth: true
-                Layout.minimumWidth: 160
-                Layout.maximumWidth: 160
+                width: parent.width * 0.6
 
-                Button {
+                ToolButton {
                     objectName: "leftSkipButton"
                     id: leftSkipButton
                     x: parent.width * 0.05
                     y: (parent.height - this.height) / 2
                     width: parent.width * 0.12
                     iconName: "skip_left"
-                    iconSource: "icons/previous.png"
+                    iconSource: "icons/skipBack.png"
+
                 }
 
-                Button {
-                    objectName: "rewindButton"
-                    id: rewindButton
+                ToolButton {
+                    id: rewindButtonBox
                     x: parent.width * 0.21
                     y: (parent.height - this.height) / 2
                     width: parent.width * 0.12
                     iconName: "rewind"
-                    iconSource: "icons/player_start.png"
+                    iconSource: "icons/rewind.png"
+
+                    MouseArea {
+                        objectName: "rewindButton"
+                        id: rewindButton
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+
+                        signal startRewind();
+                        signal endRewind();
+
+                        onPressed: {
+                            rewindButton.startRewind()
+                        }
+                        onReleased: {
+                            rewindButton.endRewind();
+                        }
+                    }
                 }
 
-                Button {
+                ToolButton {
                     id: playButton
                     objectName: "playButton"
                     x: parent.width * 0.375
@@ -274,7 +289,6 @@ ColumnLayout {
 
                     onClicked: {
                         playButton.playClicked();
-                        playButton.qmlSig("RAWR I'M A BALLOON");
 
                         if (playbackSlider.value >= playbackSlider.maximumValue)
                         {
@@ -303,11 +317,7 @@ ColumnLayout {
                             PropertyChanges {
                                 target: playButton
                                 iconName: "play"
-                                iconSource: "icons/player_play.png"
-                            }
-                            PropertyChanges {
-                                target: timer
-                                running: false
+                                iconSource: "icons/play.png"
                             }
                         },
                         State {
@@ -315,30 +325,41 @@ ColumnLayout {
                             PropertyChanges {
                                 target: playButton
                                 iconName: "pause"
-                                iconSource: "icons/player_pause.png"
-                            }
-                            PropertyChanges {
-                                target: timer
-                                running: true
+                                iconSource: "icons/pause.png"
                             }
                         }
                     ]
                 }
 
-                Button {
-                    objectName: "fastForwardButton"
-                    id: fastForwardButton
+                ToolButton {
+                    id: fastForwardButtonBox
                     x: parent.width * 0.67
                     y: (parent.height - this.height) / 2
                     width: parent.width * 0.12
                     iconName: "fast_forward"
-                    iconSource: "icons/player_fwd.png"
+                    iconSource: "icons/fastForward.png"
 
-                    signal heldDown();
+                    MouseArea {
+                        objectName: "fastForwardButton"
+                        id: fastForwardButton
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
 
+                        signal startFastForward();
+                        signal endFastForward();
+
+                        onPressed: {
+                            fastForwardButton.startFastForward();
+                        }
+                        onReleased: {
+                            fastForwardButton.endFastForward();
+                        }
+                    }
                 }
 
-                Button {
+                ToolButton {
                     objectName: "rightSkipButton"
                     id: rightSkipButton
                     x: parent.width * 0.83
@@ -352,15 +373,15 @@ ColumnLayout {
             RowLayout {
                 id: volumeOptions
                 anchors.right: parent.right
-                anchors.rightMargin: parent.width * 0.05
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
+                width: parent.width * 0.2
 
                 Slider {
                     objectName: "volumeSlider"
                     id: volumeSlider
+                    anchors.left: parent.left
                     anchors.right: parent.right
-                    width: 10
                     minimumValue: 0
                     maximumValue: 100
                     stepSize: 1

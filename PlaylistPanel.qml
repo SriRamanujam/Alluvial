@@ -5,15 +5,12 @@ import QtMultimedia 5.0
 
 ColumnLayout {
 
-    id: playlistPanel
-
+    id: playListPanel
     width: 150
     anchors.top: parent.top
     anchors.bottom: playBackBar.top
     anchors.left: parent.left
-    Layout.fillWidth: true
-    Layout.minimumWidth: 100
-    Layout.fillHeight: true
+    state: "showPlaylist"
 
     states: [
         State {
@@ -24,8 +21,11 @@ ColumnLayout {
             }
             PropertyChanges {
                 target: showPlaylistButton
-                text: '>'
-                anchors.left: parent.right
+                text: '>>'
+            }
+            PropertyChanges {
+                target: trackListings
+                model: hiderModel
             }
         },
         State {
@@ -36,18 +36,27 @@ ColumnLayout {
             }
             PropertyChanges {
                 target: showPlaylistButton
-                text: '<'
-                anchors.right: parent.right
+                text: '<<'
+            }
+            PropertyChanges {
+                target: trackListings
+                model: cppModel
             }
         }
     ]
 
-    Button{
+    transitions: Transition {
+            NumberAnimation {
+                properties: "width";
+                easing.type: Easing.InOutQuad }
+        }
+
+    ToolButton{
         id: showPlaylistButton
         anchors.left: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        text: '<'
+        text: '<<'
 
         onClicked: {
             if(playListPanel.state=="showPlaylist"){
@@ -66,6 +75,7 @@ ColumnLayout {
         anchors.bottom: parent.bottom
 
         color: '#E0E0E0'
+
 
         ComboBox {
             objectName: "dropdownPlaylistOptions"
@@ -86,16 +96,11 @@ ColumnLayout {
 
         Rectangle {
             id: playlistTrackListing
-            x: 10
-            y: dropdownPlaylistOptions.height + 5
-            width: parent.width
-            height: parent.height
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: dropdownPlaylistOptions.bottom
+            anchors.bottom: parent.bottom
             color: "transparent"
-
-            Layout.fillWidth: true
-            Layout.minimumWidth: playListPanel.width
-            Layout.fillHeight: true
-            Layout.minimumHeight: playListPanel.height
 
             Component {
                 id: track
@@ -116,24 +121,24 @@ ColumnLayout {
             }
 
             ListModel {
-                    id: qmlModel
-                    ListElement { name: "qml entry1 (red)"; colour: "red" }
-                    ListElement { name: "qml entry2 (orange)"; colour: "orange" }
-                    ListElement { name: "qml entry3 (yellow)"; colour: "yellow" }
-                    ListElement { name: "qml entry4 (green)"; colour: "green" }
-                    ListElement { name: "qml entry5 (blue)"; colour: "blue" }
-                    ListElement { name: "qml entry6 (purple)"; colour: "purple" }
+                    id: hiderModel
                 }
 
             ListView {
                 id: trackListings
                 objectName: "trackListings"
-                anchors.fill: parent
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                model: cppModel
 
                 delegate: Rectangle {
                     id: trackItem
                     height: 20
                     width: parent.width
+                    color: "transparent"
+
                     MouseArea {
                         anchors.fill: parent
                         onDoubleClicked: {

@@ -12,6 +12,8 @@ public:
     mediaPlayer();
     ~mediaPlayer();
     void play(QByteArray);
+    double getMediaDuration();
+    int positionChanged();
 
 public slots:
     void play();
@@ -19,11 +21,14 @@ public slots:
     void skipTo(int);
     void playOrPause();
     void setVolume(int);
-    void rewind();
-    void fastForward();
-    void durationChanged(qint64);
+    void startRewind();
+    void startFastForward();
+    void resetPlaybackRate();
+    void childPositionChanged(qint64);
 
 signals:
+    qint64 durationChanged();
+    void positionChanged(QVariant);
 
 private:
     QMediaPlayer *player;

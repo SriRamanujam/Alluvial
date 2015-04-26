@@ -20,18 +20,9 @@
 mediaPlayer::mediaPlayer()
 {
     player = new QMediaPlayer();
-
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
-
-    QDir homePath = QDir::currentPath() + "/../Alluvial";
-    QFile example(homePath.absolutePath() + "/music/GiDeMo/Thousand Enemies.mp3");
-    example.open(QIODevice::ReadOnly);
-    QByteArray dat = example.readAll();
-
-    connect(player, SIGNAL(durationChanged(qint64)), SLOT(durationChanged(qint64)));
-
-    this->play(dat);
+    this->player->setNotifyInterval(1000);
+    QObject::connect(this->player,SIGNAL(positionChanged(qint64)),
+        this, SLOT(childPositionChanged(qint64)));
 }
 
 mediaPlayer::~mediaPlayer()
@@ -61,8 +52,6 @@ void mediaPlayer::play (QByteArray data)
         return ;
     }
 
-    //qDebug() << "Now starting to write data of size" << data.size();
-
     if(tmp_file.write(data) < 0) {
         qDebug() << "file write failed" << tmp_file.errorString();
         return ;
@@ -71,6 +60,7 @@ void mediaPlayer::play (QByteArray data)
 
     QMediaContent song = QMediaContent(QUrl::fromLocalFile(path.absolutePath() + "/tmp.mp3"));
     player->setMedia(song);
+    qDebug() << "Media set. Song duration:" << player->duration();
     player->setVolume(50);
     player->play();
 }
@@ -119,37 +109,34 @@ void mediaPlayer::setVolume(int vol)
     player->setVolume(vol);
 }
 
-/*!
- * \brief mediaPlayer::rewind Skip ahead 10 seconds
- */
-void mediaPlayer::rewind()
+void mediaPlayer::startFastForward()
 {
-    player->setPosition(player->position()-10000);
+    player->setVolume(player->volume() / 3);
+    player->setPlaybackRate(6);
+    qDebug() << "Playback rate = 6";
+    qDebug() << this->player->position();
 }
 
-/*!
- * \brief mediaPlayer::fastForward Skip ahead 10 seconds
- */
-void mediaPlayer::fastForward()
+void mediaPlayer::startRewind()
 {
-    player->setPosition(player->position()+10000);
+    player->setVolume(player->volume() / 3);
+    player->pause();
+    qDebug() << "Playback rate = -6";
+    qDebug() << this->player->position();
 }
 
-/*!
- * \brief mediaPlayer::durationChanged Change the duration of the song. NEEDS FIXING!!!
- * \param duration The length of the song in seconds
- */
-void mediaPlayer::durationChanged(qint64 duration)
+void mediaPlayer::resetPlaybackRate()
 {
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    QObject *root = engine.rootObjects().first();
-    QObject *playbackSlider = root->findChild<QObject*>("playbackSlider");
-    QObject *activeSongMeta = root->findChild<QObject*>("activeSongMeta");
-    QObject *songEnd = root->findChild<QObject*>("songEnd");
-    playbackSlider->setProperty("maximumValue", duration/1000);
-    activeSongMeta->setProperty("length", duration/1000);
-    //songEnd->setProperty("text", QVariant("4:48"));
-    //qDebug() << "The duration label:" << songEnd->property("text");
+    player->setVolume(player->volume() * 3);
+    player->play();
+    player->setPlaybackRate(1);
+    qDebug() << "Playback rate reset";
+    qDebug() << this->player->position();
+}
+
+void mediaPlayer::childPositionChanged(qint64 position)
+{
+    qDebug() << "childPositionChanged called:" << position;
+    emit positionChanged(position);
 }
