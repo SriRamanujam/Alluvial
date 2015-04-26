@@ -7,8 +7,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-//    Client *thing = new Client();
-    TestClientDebug* debug = new TestClientDebug();
+    TestClientDebug *debug = new TestClientDebug();
 
    return a.exec();
 }

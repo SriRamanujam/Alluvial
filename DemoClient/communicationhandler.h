@@ -52,6 +52,7 @@ private slots:
     void handleBinaryMessage(QByteArray data);
     void handleTextMessage(QString doc);
     void reconnectToServer();
+    void initiateAuthReq();
 };
 
 #endif // COMMUNICATIONHANDLER_H

@@ -2,6 +2,7 @@
 #define SEARCHRESULT_H
 
 #include <QObject>
+#include <QDebug>
 #include <QCryptographicHash>
 #include <QJsonArray>
 #include <QJsonObject>

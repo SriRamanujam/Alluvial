@@ -14,6 +14,7 @@ SearchResult::SearchResult(QString query, QObject *parent) : QObject(parent)
     resultsList = QJsonArray();
 
     this->query = query;
+    qDebug() << "SearchResult object created for" << query;
 }
 
 /*!
@@ -22,6 +23,7 @@ SearchResult::SearchResult(QString query, QObject *parent) : QObject(parent)
  */
 void SearchResult::onDbSearchComplete(QJsonArray *obj)
 {
+    qDebug() << "DB search has completed for query" << query;
     if (SEARCH_COMPLETE) {
         return;
     }
@@ -41,6 +43,7 @@ void SearchResult::onDbSearchComplete(QJsonArray *obj)
  */
 void SearchResult::onSoundcloudSearchComplete(QJsonArray *obj)
 {
+    qDebug() << "Soundcloud search has completed for query" << query;
     if (SEARCH_COMPLETE) {
         return;
     }
@@ -60,6 +63,7 @@ void SearchResult::onSoundcloudSearchComplete(QJsonArray *obj)
  */
 void SearchResult::onSpotifySearchComplete(QJsonArray *obj)
 {
+    qDebug() << "Spotify search has completed for query" << query;
     if (SEARCH_COMPLETE) {
         return;
     }
@@ -113,11 +117,11 @@ void SearchResult::constructFullResult()
     /// at this point, we get to build the full object.
     fullResult = QJsonObject
     {
-        {"response_type", "search"},
-        {"query", query},
-        {"results", ""}
+        {"query", query}
     };
 
+    /// \todo Bolster this by splitting everything up into the appropriate
+    /// categories.
     QJsonObject results = QJsonObject
     {
         {"number", (resultsList.size())},

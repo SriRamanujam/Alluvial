@@ -55,7 +55,7 @@ void CommunicationHandler::sendAuthRequest(QString pass)
     qDebug() << QString(QJsonDocument(obj).toJson());
 
 
-    socket->sendTextMessage(QString(QJsonDocument(obj).toJson()));
+    socket->sendTextMessage(QJsonDocument(obj).toJson());
 }
 
 /*!
@@ -93,7 +93,7 @@ void CommunicationHandler::sendSearchRequest(QString req)
     qDebug() << "Search request is:";
     qDebug() << QString(QJsonDocument(obj).toJson());
 
-    socket->sendTextMessage(QString(QJsonDocument(obj).toJson()));
+    socket->sendTextMessage(QJsonDocument(obj).toJson());
 }
 
 /*!
@@ -110,7 +110,7 @@ void CommunicationHandler::sendMediaRequest(QString hash)
 
     QJsonObject obj
     {
-        {"request_type", "authentication"}
+        {"request_type", "media"}
     };
 
     obj["request"] = inner;
@@ -118,7 +118,7 @@ void CommunicationHandler::sendMediaRequest(QString hash)
     qDebug() << "Media request is:";
     qDebug() << QString(QJsonDocument(obj).toJson());
 
-    socket->sendTextMessage(QString(QJsonDocument(obj).toJson()));
+    socket->sendTextMessage(QJsonDocument(obj).toJson());
 }
 
 /*!
@@ -147,13 +147,14 @@ void CommunicationHandler::handlePlaylistResponse(QJsonObject obj)
  */
 void CommunicationHandler::handleAuthResponse(QJsonObject obj)
 {
+    qDebug() << "We have received an auth response";
     if (obj["Response"].toString() ==  "Error") {
         // an error has occurred, emit an error message
         emit authError(obj["error"].toString());
         return;
     }
 
-    if (obj["request"].toObject()["success"].toBool()) {
+    if (obj["response"].toObject()["success"].toBool()) {
         qDebug() << "Auth request succeeded!";
         emit onAuthReceived(true);
         return;
@@ -201,9 +202,9 @@ void CommunicationHandler::connectToServer(QString host)
 {
     // we make sure that if an old socket instance exists, it is
     // completely and utterly destroyed before we move forward.
-    if (socket) {
-        socket->deleteLater();
-    }
+//    if (socket) {
+//        socket->deleteLater();
+//    }
 
     socket = new QWebSocket();
 
@@ -215,6 +216,9 @@ void CommunicationHandler::connectToServer(QString host)
     // the client should transparently try to reconnect to the server.
     connect(socket, SIGNAL(disconnected()),
             this, SLOT(reconnectToServer()));
+
+    // the client should automatically try to initiate login when we've connected
+    connect(socket, &QWebSocket::connected,this, &CommunicationHandler::initiateAuthReq);
 
     // we now ensure the host is properly formatted, by creating the QUrl
     // and using it to validate the URL.
@@ -228,12 +232,12 @@ void CommunicationHandler::connectToServer(QString host)
     hostUrl.setScheme("ws");
 
     socket->open(hostUrl);
+}
 
-    // we then init and send an auth response to the server.
-    // TODO: hammer out a way to get the password from whereever it's stored
-//    QString passwd = getPassword();
-    QString passwd = "123abc";
-    sendAuthRequest(passwd);
+void CommunicationHandler::initiateAuthReq()
+{
+    qDebug() << "Now sending initial auth request";
+    sendAuthRequest("serverPass");
 }
 
 /*!

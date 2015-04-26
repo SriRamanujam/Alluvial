@@ -68,6 +68,7 @@ void MediaHandler::search(QString query)
     /// already been executed. If it has been, then we return those results
     /// instead of re-executing the search.
     if (completedSearches->contains(query)) {
+        qDebug() << "We found a search result already cached";
         QJsonObject res = completedSearches->value(query)->getSearchResults();
         emit searchResultComplete(res); // will this work?
         return;
@@ -75,8 +76,9 @@ void MediaHandler::search(QString query)
     /// we first create the object and enqueue it for processing.
     SearchResult *search = new SearchResult(query);
 
-    /// we now hook up all the needed signals to this object to ensure its success
-    connect(search, &SearchResult::searchProcessingComplete, this, &MediaHandler::processQueue);
+    /// we now hook up all the needed signals to this object to ensure success
+    connect(search, &SearchResult::searchProcessingComplete,
+            this, &MediaHandler::processQueue);
 //    connect(spotify, SIGNAL(onSearchComplete(QJsonArray)),
 //            search, SLOT(onSpotifySearchComplete(QJsonArray)));
     connect(db, &queryhandler::onSearchComplete,
@@ -104,10 +106,11 @@ void MediaHandler::search(QString query)
  * Due to the constraint placed upon us that searches are returend in the order
  * they are received, there is no need to implement any sort of parallel
  * processing. This makes life a lot easier at the expense of some speed on the
- * backend. Because of this, we use this function to trigger advances in the queue.
+ * backend. Because of this, we use this function to trigger advances in the
+ * queue.
  *
- * This method is called both when a new item is added to the queue and as a slot
- * when a search result completes.
+ * This method is called both when a new item is added to the queue and as a
+ * slot when a search result completes.
  */
 void MediaHandler::processQueue()
 {

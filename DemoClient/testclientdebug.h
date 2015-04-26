@@ -18,6 +18,8 @@ private:
 signals:
 
 public slots:
+    void authReceivedCallback(bool auth);
+    void searchReceivedCallback(QJsonObject obj);
 };
 
 #endif // TESTCLIENTDEBUG_H

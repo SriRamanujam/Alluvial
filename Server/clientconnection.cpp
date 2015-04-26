@@ -32,6 +32,7 @@ ClientConnection::ClientConnection(QWebSocket *sock, MediaHandler *mediaHandler,
  */
 ClientConnection::~ClientConnection()
 {
+    qDebug() << "Client connection being deleted";
     socket->deleteLater();
 }
 
@@ -65,6 +66,8 @@ void ClientConnection::onTextMessageReceived(QString doc)
             return;
         } else if (type == "settings") {
             _handleSettingsReq(obj);
+        } else if (type == "authentication") {
+            _handleAuthenticationReq(obj);
         } else {
             QJsonDocument res = buildErrorMsg(MessageParseError::InvalidRequestType);
             socket->sendTextMessage(QString(res.toJson()));
@@ -105,7 +108,7 @@ void ClientConnection::_handleAuthenticationReq(QJsonObject req)
     QJsonObject res;
     QJsonObject result;
     bool success;
-    res["response_type"] == "authentication";
+    res["response_type"] = "authentication";
 
     QString pass = req["request"].toObject()["password"].toString();
 
@@ -120,6 +123,8 @@ void ClientConnection::_handleAuthenticationReq(QJsonObject req)
     }
 
     res["response"] = result;
+
+    qDebug() << QString(QJsonDocument(res).toJson());
 
     socket->sendTextMessage(QJsonDocument(res).toJson());
 
@@ -139,18 +144,19 @@ void ClientConnection::_handleAuthenticationReq(QJsonObject req)
 void ClientConnection::_handleSearchReq(QJsonObject req)
 {
     qDebug() << "We are now handling a search request";
+    qDebug() << "Query is: ";
+    qDebug() << QString(QJsonDocument(req).toJson());
 
     QJsonObject res;
 
     // TODO: error handling here, in case some part of this doesn't work.
     QString query = req["request"].toObject()["query"].toString();
+    qDebug() << "Query string is " + query;
     if (query == "") {
         // error, malformed request
         // TODO: implement
     }
 
-    // placeholder line, but API should be the same.
-//    QJsonObject response = mediaHandler->search(query);
     connect(mediaHandler, &MediaHandler::searchResultComplete,
             this, &ClientConnection::returnSearchResponse);
     mediaHandler->search(query);
@@ -158,12 +164,14 @@ void ClientConnection::_handleSearchReq(QJsonObject req)
 
 void ClientConnection::returnSearchResponse(QJsonObject response)
 {
-    QJsonObject res;
-    res["response_type"] = "search";
-    res["query"] = "query type";
-    res["results"] = response;
+    QJsonObject fullResponse;
+    fullResponse["response_type"] = "search";
+    fullResponse["response"] = response;
 
-    socket->sendTextMessage(QJsonDocument(res).toJson());
+    qDebug() << "Sending search result:";
+    qDebug() << QString(QJsonDocument(fullResponse).toJson());
+
+    socket->sendTextMessage(QJsonDocument(fullResponse).toJson());
 }
 
 /*!
