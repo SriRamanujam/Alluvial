@@ -3,17 +3,6 @@
         <file>main.qml</file>
         <file>PlayBackBar.qml</file>
         <file>PlaylistPanel.qml</file>
-        <file>icons/next_track.png</file>
-        <file>icons/player_fwd.png</file>
-        <file>icons/player_pause.png</file>
-        <file>icons/player_play.png</file>
-        <file>icons/player_start.png</file>
-        <file>icons/previous.png</file>
-        <file>icons/repeat.png</file>
-        <file>icons/pressed_repeat.png</file>
-        <file>icons/pressed_shuffle.png</file>
-        <file>icons/shuffle.png</file>
-        <file>icons/repeat.gif</file>
         <file>container-background.jpg</file>
         <file>deployment.pri</file>
         <file>ItemDetailViewForm.qml</file>
@@ -26,9 +15,19 @@
         <file>FileBrowser.qml</file>
         <file>Scrollbar.qml</file>
         <file>SearchResultsHeader.qml</file>
-        <file>icons/back.png</file>
         <file>GlobalVars.qml</file>
         <file>qmldir.txt</file>
         <file>LoginScreen.qml</file>
+        <file>icons/fastForward.png</file>
+        <file>icons/next_track.png</file>
+        <file>icons/pause.png</file>
+        <file>icons/play.png</file>
+        <file>icons/pressed_repeat.png</file>
+        <file>icons/pressed_shuffle.png</file>
+        <file>icons/repeat.png</file>
+        <file>icons/shuffle.png</file>
+        <file>icons/skipBack.png</file>
+        <file>icons/rewind.png</file>
+        <file>icons/back.png</file>
     </qresource>
 </RCC>
