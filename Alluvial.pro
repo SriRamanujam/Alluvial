@@ -7,7 +7,6 @@ SOURCES += main.cpp \
     settings_storage.cpp \
     qtlibspotify.cpp \
     qtspotifythread.cpp \
-    mediaplayer.cpp \
     playlist_item.cpp \
     playlist.cpp \
     playlist_handler.cpp \
@@ -29,7 +28,6 @@ HEADERS += \
     qtlibspotify.h \
     ../appkey.h \
     qtspotifythread.h \
-    mediaplayer.h \
     playlist_item.h \
     playlist.h \
     playlist_handler.h \
