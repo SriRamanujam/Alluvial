@@ -179,9 +179,9 @@ void playlist_handler::nextSong()
     int currentlyActiveSong = this->activeSong;
     if ( this->shuffle )
     {
-        while ( this->activeSong == currentlyActiveSong && this->playlists.size() > 1 )
+        while ( this->activeSong == currentlyActiveSong && this->getActivePlaylist().getSongs().size() > 1 )
         {
-            this->activeSong = rand() % this->playlists.size();
+            this->activeSong = rand() % this->getActivePlaylist().getSongs().size();
         }
     }
     else
@@ -193,6 +193,7 @@ void playlist_handler::nextSong()
         }
     }
 
+    emit changeActiveSong(QVariant(this->activeSong));
     qDebug() << "Active Song Index:" << this->activeSong;
 }
 
@@ -204,9 +205,9 @@ void playlist_handler::previousSong()
     int currentlyActiveSong = this->activeSong;
     if ( this->shuffle )
     {
-        while ( this->activeSong == currentlyActiveSong && this->playlists.size() > 1 )
+        while ( this->activeSong == currentlyActiveSong && this->getActivePlaylist().getSongs().size() )
         {
-            this->activeSong = rand() % this->playlists.size();
+            this->activeSong = rand() % this->getActivePlaylist().getSongs().size();
         }
     }
     else
@@ -218,6 +219,7 @@ void playlist_handler::previousSong()
         }
     }
 
+    emit changeActiveSong(QVariant(this->activeSong));
     qDebug() << "Active Song Index:" << this->activeSong;
 }
 

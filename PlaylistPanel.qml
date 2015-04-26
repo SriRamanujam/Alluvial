@@ -42,6 +42,10 @@ ColumnLayout {
                 target: trackListings
                 model: cppModel
             }
+            PropertyChanges {
+                target: trackListings
+                currentIndex: trackListings.index
+            }
         }
     ]
 
@@ -119,6 +123,21 @@ ColumnLayout {
             color: "transparent"
 
             Component {
+                id: highlight
+                Rectangle {
+                    id: highlightRectangle
+                    color: "lightsteelblue"; radius: 5
+                    y: trackListings.model.currentItem.y
+                    Behavior on y {
+                        SpringAnimation {
+                            spring: 3
+                            damping: 0.2
+                        }
+                    }
+                }
+            }
+
+            Component {
                 id: track
                 Rectangle {
                     color: "red"
@@ -155,13 +174,28 @@ ColumnLayout {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 model: cppModel
+                highlight: highlight
+                property int index: 0
+
+                function changeActiveSong( newIndex )
+                {
+                    trackListings.index = newIndex
+                    trackListings.currentIndex = newIndex;
+                }
+
+                onCurrentIndexChanged: {
+                    console.log("Current index: " + trackListings.currentIndex);
+                    console.log("Index: " + trackListings.index);
+                }
 
                 function changeListings( newTracks )
                 {
                     cppModel.clear();
+                    hiderModel.clear();
                     for ( var i = 0 ; i < newTracks.length ; i++ )
                     {
                         cppModel.insert(i, {"name": newTracks[i]});
+                        hiderModel.insert(i, {"text": ""});
                     }
                 }
 

@@ -163,6 +163,9 @@ int main(int argc, char *argv[])
     QObject::connect(ph, SIGNAL(setPlaylistListings(QVariant)),
         playlistDropDown, SLOT ( changePlaylistListings(QVariant)));
 
+    QObject::connect(ph, SIGNAL(changeActiveSong(QVariant)),
+        trackListings, SLOT (changeActiveSong(QVariant)));
+
     playlist_item *newSong0 = new playlist_item("#0", "song 0", 5);
     playlist_item *newSong1 = new playlist_item("#1", "song 1", 5);
     playlist_item *newSong2 = new playlist_item("#2", "song 2", 5);

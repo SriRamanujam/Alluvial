@@ -74,6 +74,7 @@ public slots:
 signals:
     void setTrackListings(QVariant);
     void setPlaylistListings(QVariant);
+    void changeActiveSong(QVariant);
 
     // Taken from the old mediaplayer class
     void durationChanged(QVariant);
