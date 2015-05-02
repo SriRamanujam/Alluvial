@@ -110,7 +110,7 @@ void CommunicationHandler::sendMediaRequest(QString hash)
 
     QJsonObject obj
     {
-        {"request_type", "authentication"}
+        {"request_type", "media"}
     };
 
     obj["request"] = inner;
@@ -153,7 +153,7 @@ void CommunicationHandler::handleAuthResponse(QJsonObject obj)
         return;
     }
 
-    if (obj["request"].toObject()["success"].toBool()) {
+    if (obj["response"].toObject()["success"].toBool()) {
         qDebug() << "Auth request succeeded!";
         emit onAuthReceived(true);
         return;
@@ -199,11 +199,11 @@ void CommunicationHandler::handleSearchResponse(QJsonObject obj)
  */
 void CommunicationHandler::connectToServer(QString host)
 {
-    // we make sure that if an old socket instance exists, it is
-    // completely and utterly destroyed before we move forward.
-    if (socket) {
-        socket->deleteLater();
-    }
+//    // we make sure that if an old socket instance exists, it is
+//    // completely and utterly destroyed before we move forward.
+//    if (socket) {
+//        socket->deleteLater();
+//    }
 
     socket = new QWebSocket();
 
@@ -211,6 +211,7 @@ void CommunicationHandler::connectToServer(QString host)
             this, SLOT(handleBinaryMessage(QByteArray)));
     connect(socket, SIGNAL(textMessageReceived(QString)),
             this, SLOT(handleTextMessage(QString)));
+    connect(socket, SIGNAL(connected()), this, SLOT(sendAuth()));
 
     // the client should transparently try to reconnect to the server.
     connect(socket, SIGNAL(disconnected()),
@@ -228,12 +229,12 @@ void CommunicationHandler::connectToServer(QString host)
     hostUrl.setScheme("ws");
 
     socket->open(hostUrl);
+}
 
-    // we then init and send an auth response to the server.
-    // TODO: hammer out a way to get the password from whereever it's stored
-//    QString passwd = getPassword();
-    QString passwd = "123abc";
-    sendAuthRequest(passwd);
+void CommunicationHandler::sendAuth()
+{
+    QString pass = "serverPass";
+    sendAuthRequest(pass);
 }
 
 /*!
