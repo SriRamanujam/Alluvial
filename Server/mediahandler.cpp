@@ -12,7 +12,8 @@ MediaHandler::MediaHandler(QObject *parent) : QObject(parent)
     searchQueue = new QQueue<SearchResult*>();
     completedSearches = new QMap<QString, SearchResult*>();
     /// Demo code, make it prettier and/or functional later.
-    spotify = new QtLibSpotifyHandler();
+    spotify = new QtSpotifySession();
+    spotify->initSpotify();
     soundcloud = new SCHandler();
     db = new queryhandler();
     dbSongs = new songHandler();
@@ -95,17 +96,19 @@ void MediaHandler::search(QString query)
     /// we now hook up all the needed signals to this object to ensure success
     connect(search, &SearchResult::searchProcessingComplete,
             this, &MediaHandler::processQueue);
-//    connect(spotify, &QtLibSpotifyHandler::onSearchComplete,
-//            search, &SearchResult::onSpotifySearchComplete);
+//    connect(spotify, SIGNAL(onSearchComplete(QJsonArray)),
+//            search, SLOT(onSpotifySearchComplete(QJsonArray)));
     connect(db, &queryhandler::onSearchComplete,
             search, &SearchResult::onDbSearchComplete);
     connect(soundcloud, &SCHandler::onSearchComplete,
             search, &SearchResult::onSoundcloudSearchComplete);
+    connect(spotify, &QtSpotifySession::searchResultReady,
+            search, &SearchResult::onSpotifySearchComplete);
     searchQueue->enqueue(search);
 
     /// execute the searches
     db->getResults(query);
-//    spotify->search(query);
+    spotify->startSearch(query);
     soundcloud->search(query);
 
     /// do something to make sure the thing goes

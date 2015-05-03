@@ -117,10 +117,16 @@ QJsonArray SCHandler::search(QString value, QString key){
 QJsonArray SCHandler::search(int count, QString value, QString key){
     QJsonArray results = QJsonArray();
     int num_queried = query(key, value);
-    if(count > num_queried)
-        count = num_queried;
-    for(int i=0; i<40; i++){
-
+    for(int i=0; i<num_queried; i++){
+        QJsonObject jobj = raw_results[i].toObject();
+        QString result = jobj["download_url"].toString();
+        qDebug() << result.compare(QString(""));
+        if(result.compare(QString("")) != 0)
+            results.append(format(raw_results[i]));
+    }
+    if(count > results.size())
+        count = results.size();
+    for(int i=0; i<count; i++){
         results.append(format(raw_results[i]));
     }
     emit onSearchComplete(&results);
@@ -155,7 +161,6 @@ QByteArray SCHandler::request_song(QString download_url){
 
     if (reply->error() == QNetworkReply::NoError) {
         //get temp download url as json
-
         QJsonDocument jsondoc = QJsonDocument(QJsonDocument::fromJson(QString(reply->readAll()).toUtf8()));
         QJsonObject jobj = jsondoc.object();
         QString download_url = jobj["location"].toString();
@@ -170,6 +175,7 @@ QByteArray SCHandler::request_song(QString download_url){
             eventLoop.exec();
 
             return reply->readAll();
+
         }
         else{
             qDebug() << "Failure on download request" <<reply->errorString();
