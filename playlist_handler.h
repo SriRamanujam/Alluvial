@@ -22,7 +22,6 @@ public:
 
     void addPlaylist();
     void addPlaylist(playlist);
-    void addPlaylist(QString);
     void addSong(int, playlist_item);
     void dropPlaylists();
     void dropPlaylist(playlist);
@@ -50,6 +49,8 @@ public:
     int positionChanged();
 
 public slots:
+    void addPlaylist(QVariant);
+    void addPlaylist(QString);
     void repeatSwitch();
     void shuffleSwitch();
     void changePlaylist(int);
@@ -62,7 +63,6 @@ public slots:
     void metaDataChanged();
     void metaDataChanged(QString, QVariant);
     void dropSong(int);
-    void addSong(QVariant, QVariant, int);
     void addSong(QVariant, QVariant, QVariant, QVariant, int, QVariant, int);
     void onSearchReceived(QJsonObject);
     void savePlaylist(int);
@@ -91,6 +91,8 @@ signals:
     void requestSong(QString);
     void displaySearchResults(QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant);
     void activePlaylistChanged(QVariant);
+    void playSong();
+    void songPaused();
 
     // Taken from the old mediaplayer class
     void durationChanged(QVariant);

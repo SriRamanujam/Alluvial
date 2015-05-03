@@ -311,6 +311,17 @@ ColumnLayout {
                         }
                     }
 
+                    function makePaused()
+                    {
+                        console.log("makePaused called")
+                        playButton.state = "pause"
+                    }
+                    function makePlay()
+                    {
+                        console.log("makePlay called")
+                        playButton.state = "play"
+                    }
+
                     states: [
                         State {
                             name: "pause"
