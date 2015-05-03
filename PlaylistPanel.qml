@@ -97,6 +97,11 @@ ColumnLayout {
 
             model: playlistModel
 
+            function playlistChanged(newPlaylist)
+            {
+                dropdownPlaylistOptions.currentIndex = dropdownPlaylistOptions.find(newPlaylist);
+            }
+
             function changePlaylistListings(newPlaylists)
             {
                 playlistModel.clear();
@@ -179,6 +184,7 @@ ColumnLayout {
                 property int index: 0
 
                 signal activeSongChanged(int newIndex);
+                signal deleteSongFromPlaylist(int indexToDelete)
 
                 function changeActiveSong( newIndex )
                 {
@@ -212,8 +218,38 @@ ColumnLayout {
                             console.log("Song clicked from playlist pane: " + name);
                         }
                     }
+
                     Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: parent.width * 0.05
                         text: '•' + name
+                        elide: Text.ElideRight
+                    }
+
+                    MouseArea {
+                        anchors.right: parent.right
+                        anchors.rightMargin: parent.width * 0.05
+                        anchors.top: parent.top
+                        anchors.topMargin: parent.height * 0.05
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: parent.height * 0.05
+
+                        width: this.height
+                        height: this.height
+
+                        Image {
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.right: parent.right
+                            anchors.left: parent.left
+                            anchors.fill: parent
+
+                            source: 'icons/close.png'
+                        }
+
+                        onClicked: {
+                            trackListings.deleteSongFromPlaylist(index)
+                        }
                     }
                 }
             }

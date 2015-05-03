@@ -10,18 +10,17 @@ Rectangle {
     width: parent.width
     color: "#5599ff"
 
-    signal searchQuery(string input);
-
     TextField{
+        objectName: "searchBar"
         id: searchBarTextField
 
-        anchors.fill:parent
-        onEditingFinished: {
-            //TODO: send the text in the field to somewhere which will actually do something with it
-            console.log("Search text input");
+        signal searchQuery(var input);
 
-            var inputText = getText(0,128);
-            searchQuery(inputText);
+        anchors.fill:parent
+        onAccepted: {
+            //TODO: send the text in the field to somewhere which will actually do something with it
+            console.log("Search text input: " + searchBarTextField.text);
+            searchBarTextField.searchQuery(searchBarTextField.text);
             mainWindow.state="showSearchResultsPane"
             searchBarTextField.selectAll();
             searchBarTextField.focus=false;

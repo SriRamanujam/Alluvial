@@ -29,6 +29,15 @@ Item {
             songMeta.artist = info[0];
             songMeta.album = info[1];
             songMeta.songName = info[2];
+            songMeta.albumArt = "container-background.jpg"
+            albumArt.anchors.right = albumArt.parent.right
+        }
+        function loadingSong()
+        {
+            songMeta.artist = "Loading"
+            songMeta.album = "Loading"
+            songMeta.songName = "Loading"
+            albumArt.anchors.right = albumArt.parent.left
         }
     }
 
@@ -44,8 +53,21 @@ Item {
 			color: "transparent"
 
             Image {
+                z: 1
                 id: albumArt
                 source: songMeta.albumArt
+                fillMode: Image.PreserveAspectFit
+                height: parent.height - artistText.height - albumText.height - songText.height - spacer.height
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: parent.width * 0.05
+                anchors.rightMargin: parent.width * 0.05
+            }
+
+            AnimatedImage {
+                z: 0
+                id: loadingGif
+                source: "icons/loading.gif"
                 fillMode: Image.PreserveAspectFit
                 height: parent.height - artistText.height - albumText.height - songText.height - spacer.height
                 anchors.left: parent.left

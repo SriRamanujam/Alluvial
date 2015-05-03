@@ -94,20 +94,27 @@ Rectangle {
             width: parent.width
 
             ListModel {
+                objectName: "songListModel"
                 id: songListModel
-                ListElement { name: "song0"; artist: "artist"; album: "album"; length: 215; hash: '#1'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song1"; artist: "artist"; album: "album"; length: 346; hash: '#2'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song2"; artist: "artist"; album: "album"; length: 75; hash: '#3'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song3"; artist: "artist"; album: "album"; length: 345; hash: '#4'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 423; hash: '#5'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 124; hash: '#6'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 1456; hash: '#7'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 563; hash: '#8'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 543; hash: '#9'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 463; hash: '#10'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 82; hash: '#11'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 129; hash: '#12'; albumArt: 'rawr.jpg'; size: 1024}
-                ListElement { name: "song4"; artist: "artist"; album: "album"; length: 180; hash: '#13'; albumArt: 'rawr.jpg'; size: 1024}
+
+                signal addSongToPlaylist(var name, var hash, var artist, var album, int length,
+                                         var genre, int track_number)
+                signal requestSong(var name, var hash, var artist, var album, int length,
+                                   var genre, int track_number)
+
+                function displaySearchResults(songNames, hashes, artists, albums, lengths, genres, trackNumbers, strLengths)
+                {
+                    console.log("displaySearchResults called")
+                    songListModel.clear();
+
+                    for ( var i = 0 ; i < songNames.length ; i++ )
+                    {
+                        var thing = {"name": songNames[i], "artist": artists[i],
+                            "album": albums[i], "hash": hashes[i], "strLength": strLengths[i],
+                            "length": lengths[i], "genre": genres[i], "track_number": trackNumbers[i]}
+                        songListModel.insert(i, thing);
+                    }
+                }
             }
 
             Component {
@@ -121,16 +128,9 @@ Rectangle {
                         height: 20
                         onDoubleClicked:
                         {
-                            console.log("Opening: " + name + "\nPrior song length: " + Globals.length)
                             mainWindow.state = "showItemDetailView"
-                            Globals.hash = hash
-                            Globals.songName = name
-                            Globals.album = album
-                            Globals.albumArt = albumArt
-                            Globals.artist = artist
-                            Globals.length = length
-                            Globals.size = size
-                            console.log("Current song length: " + Globals.length)
+                            songListModel.requestSong(name, hash, artist, album, length,
+                                genre, track_number)
                         }
                     }
 
@@ -138,28 +138,53 @@ Rectangle {
 
                         Text {
                             x: nameHeaderBox.x
+                            width: nameHeaderBox.width
                             text: name
+                            elide: Text.ElideRight
+
+                            MouseArea {
+                                anchors.right: parent.right
+                                anchors.rightMargin: parent.width * 0.05
+                                anchors.top: parent.top
+                                anchors.bottom: parent.bottom
+
+                                width: this.height
+                                height: this.height
+
+                                Image {
+                                    anchors.top: parent.top
+                                    anchors.bottom: parent.bottom
+                                    anchors.right: parent.right
+                                    anchors.left: parent.left
+                                    anchors.fill: parent
+
+                                    source: 'icons/add.png'
+                                }
+
+                                onClicked: {
+                                    songListModel.addSongToPlaylist(name, hash, artist, album, length,
+                                            genre, track_number)
+                                    console.log ("Add song to playlist")
+                                }
+                            }
                         }
                         Text {
                             x: artistHeaderBox.x
+                            width: artistHeaderBox.width
                             text: artist
+                            elide: Text.ElideRight
                         }
                         Text {
                             x: albumHeaderBox.x
+                            width: albumHeaderBox.width
                             text: album
+                            elide: Text.ElideRight
                         }
                         Text {
                             x: lengthHeaderBox.x
-                            text: {
-                                if (length % 60 < 10)
-                                {
-                                    Math.floor(length / 60).toString() + ':0' + Math.floor(length % 60).toString()
-                                }
-                                else
-                                {
-                                    Math.floor(length / 60).toString() + ':' + Math.floor(length % 60).toString()
-                                }
-                            }
+                            width: lengthHeaderBox.width
+                            text: strLength
+                            elide: Text.ElideRight
                         }
 
                     }

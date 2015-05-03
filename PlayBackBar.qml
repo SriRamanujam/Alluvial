@@ -68,6 +68,7 @@ ColumnLayout {
                 }
 
                 signal playbackPosChanged(int val);
+                signal songFinished();
 
                 onPressedChanged: {
                     playbackSlider.playbackPosChanged(playbackSlider.value*1000);
@@ -77,6 +78,7 @@ ColumnLayout {
                     if (playbackSlider.value >= playbackSlider.maximumValue)
                     {
                         playButton.state = 'pause'
+                        playbackSlider.songFinished();
                     }
                 }
 
