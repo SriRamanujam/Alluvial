@@ -39,7 +39,7 @@ void SearchResult::onDbSearchComplete(QJsonArray *obj)
     }
     dbRes = obj;
     DB_COMPLETE = true;
-`    if (SPOTIFY_COMPLETE && SOUNDCLOUD_COMPLETE && DB_COMPLETE) {
+    if (SPOTIFY_COMPLETE && SOUNDCLOUD_COMPLETE && DB_COMPLETE) {
         constructFullResult();
     }
 //    if (SOUNDCLOUD_COMPLETE && SPOTIFY_COMPLETE) {
