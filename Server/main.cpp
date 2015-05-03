@@ -1,10 +1,10 @@
-#include <QApplication>
+#include <QCoreApplication>
 
-#include "Server/server.h"
+#include "server.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
 
     app.setOrganizationName("AlluvialAlphaBuild");
     app.setOrganizationDomain("couponbug.com");
