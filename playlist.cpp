@@ -1,6 +1,5 @@
 #include "playlist.h"
 #include <QObject>
-#include <vector>
 #include <QDebug>
 
 /*!
@@ -11,15 +10,14 @@
 playlist::playlist()
 {
     this->title = "Untitled Playlist";
-    this->songs = std::vector<playlist_item>();
+    this->songs = QVector<playlist_item>();
 }
 
 playlist::playlist(QString title)
 {
     this->title = title;
-    this->songs = std::vector<playlist_item>();
+    this->songs = QVector<playlist_item>();
 }
-
 playlist::~playlist()
 {
 
@@ -64,10 +62,15 @@ void playlist::removeSong(playlist_item deleteSong)
     {
         if ( this->songs[index].getHash() == deleteSongHash )
         {
-            this->songs.erase(this->songs.begin() + index);
+            this->songs.remove(index);
             break;
         }
     }
+}
+
+void playlist::removeSong(int songIndex)
+{
+    this->songs.remove(songIndex);
 }
 
 /*!
@@ -101,7 +104,7 @@ QString playlist::name()
  * \brief playlist::getSongs Get the vector containing all songs
  * \return Vector containing the songs
  */
-std::vector<playlist_item> playlist::getSongs()
+QVector<playlist_item> playlist::getSongs()
 {
     return this->songs;
 }
@@ -115,7 +118,13 @@ playlist_item playlist::getSong(int index)
     return this->songs[index];
 }
 
+void playlist::setTime()
+{
+    QTime time;
+    this->last_save = time.currentTime();
+}
 
-
-
-
+QTime playlist::getTime()
+{
+    return this->last_save;
+}
