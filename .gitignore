@@ -29,3 +29,6 @@
 
 # Qt-specific files
 Alluvial.pro.user
+doc/
+appkey.h
+*.orig
