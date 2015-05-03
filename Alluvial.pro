@@ -5,8 +5,6 @@ QT += qml quick widgets multimedia websockets
 SOURCES += main.cpp \
     jsonformatter.cpp \
     settings_storage.cpp \
-    qtlibspotify.cpp \
-    qtspotifythread.cpp \
     playlist_item.cpp \
     playlist.cpp \
     playlist_handler.cpp \
@@ -25,9 +23,7 @@ include(deployment.pri)
 HEADERS += \
     settings_storage.h \
     jsonformatter.h \
-    qtlibspotify.h \
     ../appkey.h \
-    qtspotifythread.h \
     playlist_item.h \
     playlist.h \
     playlist_handler.h \
