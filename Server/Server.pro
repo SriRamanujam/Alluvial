@@ -20,8 +20,8 @@ HEADERS += \
     Settings/jsonformatter.h \
     Settings/settings_storage.h \
     Soundcloud/schandler.h \
-    Spotify/qtlibspotify.h \
-    Spotify/qtlibspotifyhandler.h \
+    Spotify/qtspotifysession.h \
+    Spotify/qtspotifywrapper.h \
     activesockets.h \
     clientconnection.h \
     mediahandler.h \
@@ -39,8 +39,8 @@ SOURCES += \
     Settings/jsonformatter.cpp \
     Settings/settings_storage.cpp \
     Soundcloud/schandler.cpp \
-    Spotify/qtlibspotify.cpp \
-    Spotify/qtlibspotifyhandler.cpp \
+    Spotify/qtspotifysession.cpp \
+    Spotify/qtspotifywrapper.cpp \
     activesockets.cpp \
     clientconnection.cpp \
     mediahandler.cpp \
