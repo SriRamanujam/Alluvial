@@ -17,10 +17,10 @@ SOURCES += main.cpp \
     Server/Local/playlisthandler.cpp \
     Server/Local/queryhandler.cpp \
     Server/Local/songhandler.cpp \
-    Server/Spotify/qtlibspotify.cpp \
-    Server/Spotify/qtlibspotifyhandler.cpp \
     Server/Settings/settings_storage.cpp \
-    Server/Settings/jsonformatter.cpp
+    Server/Settings/jsonformatter.cpp \
+    Server/Spotify/qtspotifysession.cpp \
+    Server/Spotify/qtspotifywrapper.cpp
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -41,10 +41,10 @@ HEADERS += \
     Server/Local/playlisthandler.h \
     Server/Local/queryhandler.h \
     Server/Local/songhandler.h \
-    Server/Spotify/qtlibspotify.h \
-    Server/Spotify/qtlibspotifyhandler.h \
     Server/Settings/settings_storage.h \
-    Server/Settings/jsonformatter.h
+    Server/Settings/jsonformatter.h \
+    Server/Spotify/qtspotifysession.h \
+    Server/Spotify/qtspotifywrapper.h
 
 unix:!macx: LIBS += -ltag
 

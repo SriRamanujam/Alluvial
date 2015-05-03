@@ -14,7 +14,7 @@
 #include "Local/queryhandler.h"
 #include "Local/songhandler.h"
 #include "Soundcloud/schandler.h"
-#include "Spotify/qtlibspotifyhandler.h"
+#include "Spotify/qtspotifysession.h"
 
 /*!
  * \brief The MediaHandler class provides a clean interface to the various modules involved
@@ -59,13 +59,8 @@ signals:
 
 public slots:
 private:
-    /*!
-     * \brief The Spotify interface object.
-     */
-    QtLibSpotifyHandler *spotify;
-    /*!
-     * \brief The Soundcloud interface object.
-     */
+
+    QtSpotifySession *spotify;
     SCHandler *soundcloud;
     /*!
      * \brief The local database query object.

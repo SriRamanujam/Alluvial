@@ -31,4 +31,6 @@
 Alluvial.pro.user
 doc/
 appkey.h
+appkey.c
+appkey.*
 *.orig
