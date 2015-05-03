@@ -243,18 +243,7 @@ int main(int argc, char *argv[])
     QObject::connect(prompt, SIGNAL(createNewPlaylist(QVariant)),
         ph, SLOT(addPlaylist(QVariant)));
 
-    playlist_item *newSong0 = new playlist_item("#0", "song 0", 5);
-    playlist_item *newSong1 = new playlist_item("#1", "song 1", 5);
-    playlist_item *newSong2 = new playlist_item("#2", "song 2", 5);
-    playlist_item *newSong3 = new playlist_item("#3", "song 3", 5);
-    playlist_item *newSong4 = new playlist_item("#4", "song 4", 5);
-    playlist_item *newSong5 = new playlist_item("#5", "song 5", 5);
-    playlist_item *newSong6 = new playlist_item("#6", "song 6", 5);
-    playlist_item *newSong7 = new playlist_item("#7", "song 7", 5);
-    playlist_item *newSong8 = new playlist_item("#8", "song 8", 5);
-    playlist_item *newSong9 = new playlist_item("#9", "song 9", 5);
-
-    ph->addPlaylist(QString("Empty Playlist"));
+    ph->addPlaylist(QString("Default Playlist"));
 
     QStringList playlists;
     for ( int index = 0; index < ph->getPlaylists().size(); index++ )
