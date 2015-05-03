@@ -74,13 +74,7 @@ int main(int argc, char *argv[])
     spotifyCreds.password = password.toString();
 
     playlist_handler *ph = new playlist_handler();
-    CommunicationHandler *comm = new CommunicationHandler("http://10.109.136.88:8900");
-
-    QDir homePath = QDir::currentPath() + "/../Alluvial";
-    QFile example(homePath.absolutePath() + "/music/GiDeMo/Little Braver (Album Ver.).mp3");
-    example.open(QIODevice::ReadOnly);
-    QByteArray dat = example.readAll();
-    ph->play(dat);
+    CommunicationHandler *comm = new CommunicationHandler("http://23.96.106.209:8900");
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     engine.rootContext()->setContextProperty("clientSettings", settings);
@@ -101,6 +95,7 @@ int main(int argc, char *argv[])
     QObject *songSearchResults = root->findChild<QObject*>("songListModel");
 
     QObject *searchBar = root->findChild<QObject*>("searchBar");
+    QObject *prompt = root->findChild<QObject*>("prompt");
     // Initializing the spotify stuff.  This particular is used for testing and SHOULD be changed later on.
     //spotifyThread_id = pthread_create(spotifyThread, NULL, initSpotifyFromMain, (void*)&spotifyCreds);
 
@@ -147,6 +142,14 @@ int main(int argc, char *argv[])
     // Pause or play the song
     QObject::connect(playButton, SIGNAL(playClicked()),
         ph, SLOT(playOrPause()));
+
+    // If we play a song, we change the icon in the Playback bar
+    QObject::connect(ph, SIGNAL(playSong()),
+        playButton, SLOT(makePlay()));
+
+    // If we need to pause a song for loading, we notify the playback bar to display the pause icon
+    QObject::connect(ph, SIGNAL(songPaused()),
+        playButton, SLOT(makePaused()));
 
     // When the active song is changed by clicking it in playlist panel, play the new song
     QObject::connect(trackListings, SIGNAL(activeSongChanged(int)),
@@ -237,6 +240,9 @@ int main(int argc, char *argv[])
     QObject::connect(searchBar, SIGNAL(searchQuery(QVariant)),
         comm, SLOT(sendSearchRequest(QVariant)));
 
+    QObject::connect(prompt, SIGNAL(createNewPlaylist(QVariant)),
+        ph, SLOT(addPlaylist(QVariant)));
+
     playlist_item *newSong0 = new playlist_item("#0", "song 0", 5);
     playlist_item *newSong1 = new playlist_item("#1", "song 1", 5);
     playlist_item *newSong2 = new playlist_item("#2", "song 2", 5);
@@ -248,20 +254,9 @@ int main(int argc, char *argv[])
     playlist_item *newSong8 = new playlist_item("#8", "song 8", 5);
     playlist_item *newSong9 = new playlist_item("#9", "song 9", 5);
 
-    ph->addPlaylist("Playlist 1");
-    ph->addSong(0, *newSong0);
-    ph->addSong(0, *newSong1);
-    ph->addSong(0, *newSong2);
-    ph->addPlaylist("Playlist 2");
-    ph->addSong(1, *newSong3);
-    ph->addSong(1, *newSong4);
-    ph->addPlaylist("Playlist 3");
-    ph->addSong(2, *newSong5);
-    ph->addSong(2, *newSong6);
-    ph->addSong(2, *newSong7);
-    ph->addSong(2, *newSong8);
+    ph->addPlaylist(QString("Empty Playlist"));
 
-	QStringList playlists;
+    QStringList playlists;
     for ( int index = 0; index < ph->getPlaylists().size(); index++ )
     {
         playlists.append(ph->getPlaylist(index).getPlaylistTitle());
