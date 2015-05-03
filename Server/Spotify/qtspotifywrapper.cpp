@@ -165,7 +165,7 @@ void QtSpotifyWrapper::run()
         //sleep(3);
 
         process_error = sp_session_process_events(g_session, &next_timeout);
-        //usleep(1000);
+        msleep(1000);
 
     }
 
