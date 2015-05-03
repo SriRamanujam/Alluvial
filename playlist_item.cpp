@@ -1,4 +1,5 @@
 #include "playlist_item.h"
+#include <QVariant>
 
 /*!
  * \brief playlist_item::playlist_item The container for all of the song metadata.
@@ -13,6 +14,33 @@ playlist_item::playlist_item()
     this->hash = "";
     this->songName = "";
     this->songLength = 0;
+    this->album = "";
+    this->artist = "";
+    this->track_number = 0;
+    this->stringLength = "";
+    this->genre = "";
+}
+
+playlist_item::playlist_item(QString hash, QString songName, int length,
+        QString album, QString artist, int track, QString genre)
+{
+    this->hash = hash;
+    this->songName = songName;
+    this->songLength = length;
+    this->album = album;
+    this->artist = artist;
+    this->track_number = track;
+    QString mins = QVariant(length / 60).toString();
+    int secs = length % 60;
+    if ( secs < 10 )
+    {
+        this->stringLength = mins.append(":0").append(QVariant(secs).toString());
+    }
+    else
+    {
+        this->stringLength = mins.append(":").append(QVariant(secs).toString());
+    }
+    this->genre = genre;
 }
 
 playlist_item::playlist_item(QString hash, QString songName, int length)
@@ -20,6 +48,20 @@ playlist_item::playlist_item(QString hash, QString songName, int length)
     this->hash = hash;
     this->songName = songName;
     this->songLength = length;
+    this->album = "";
+    this->artist = "";
+    this->track_number = 0;
+    QString mins = QVariant(length / 60).toString();
+    int secs = length % 60;
+    if ( secs < 10 )
+    {
+        this->stringLength = mins.append(":0").append(QVariant(secs).toString());
+    }
+    else
+    {
+        this->stringLength = mins.append(":").append(QVariant(secs).toString());
+    }
+    this->genre = "";
 }
 
 playlist_item::~playlist_item()

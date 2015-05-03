@@ -7,6 +7,7 @@ class playlist_item
 public:
     playlist_item();
     playlist_item(QString, QString, int);
+    playlist_item(QString, QString, int, QString, QString, int, QString);
     ~playlist_item();
 
     QString getHash();
@@ -16,6 +17,12 @@ public:
     void setHash(QString);
     void setSongName(QString);
     void setSongLength(int);
+
+    QString album;
+    QString artist;
+    int track_number;
+    QString stringLength;
+    QString genre;
 
 private:
     //! A songs unique identifier
@@ -27,6 +34,7 @@ private:
     //! The length of the song
     /*! The length of a song saved in seconds, that may or may not be used when displaying a playlists' tracks */
     int songLength; //< The song length in int form. 1:20 song would be 80
+
 };
 
 #endif // PLAYLIST_ITEM_H
