@@ -13,11 +13,16 @@ playlist::playlist()
     this->songs = QVector<playlist_item>();
 }
 
+/*!
+ * \brief playlist::playlist Create a new playlist of the given title
+ * \param title The string containing the name of soon-to-be-made playlist
+ */
 playlist::playlist(QString title)
 {
     this->title = title;
     this->songs = QVector<playlist_item>();
 }
+
 playlist::~playlist()
 {
 
@@ -68,6 +73,10 @@ void playlist::removeSong(playlist_item deleteSong)
     }
 }
 
+/*!
+ * \brief playlist::removeSong Deletes a song from the playlist's specific index
+ * \param songIndex The index of the song from the playlists' songs vector to be deleted
+ */
 void playlist::removeSong(int songIndex)
 {
     this->songs.remove(songIndex);
@@ -118,12 +127,19 @@ playlist_item playlist::getSong(int index)
     return this->songs[index];
 }
 
+/*!
+ * \brief playlist::setTime Saves the current time to the playlists' last_save field. Used for playlist saving/modifying
+ */
 void playlist::setTime()
 {
     QTime time;
     this->last_save = time.currentTime();
 }
 
+/*!
+ * \brief playlist::getTime Gets the time saved in the last_save field.
+ * \return A QTime object of the last time the playlist was modified/saved.
+ */
 QTime playlist::getTime()
 {
     return this->last_save;

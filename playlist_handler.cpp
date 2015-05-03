@@ -56,6 +56,8 @@ void playlist_handler::addPlaylist()
     playlist *newPlaylist = new playlist();
     this->playlists.insert(this->playlists.end(), *newPlaylist);
 
+    this->dropPlaylist("Empty Playlist");
+
     QStringList dataList;
     for ( int i = 0; i < this->getPlaylists().size() ; i++ )
     {
@@ -72,6 +74,8 @@ void playlist_handler::addPlaylist()
 void playlist_handler::addPlaylist(playlist newPlaylist)
 {
     this->playlists.insert(this->playlists.end(), newPlaylist);
+
+    this->dropPlaylist("Empty Playlist");
 
     QStringList dataList;
     for ( int i = 0; i < this->getPlaylists().size() ; i++ )
@@ -91,6 +95,8 @@ void playlist_handler::addPlaylist(QString playlistTitle)
     playlist *newPlaylist = new playlist(playlistTitle);
     this->playlists.insert(this->playlists.end(), *newPlaylist);
 
+    this->dropPlaylist("Empty Playlist");
+
     QStringList dataList;
     for ( int i = 0; i < this->getPlaylists().size() ; i++ )
     {
@@ -99,14 +105,28 @@ void playlist_handler::addPlaylist(QString playlistTitle)
 
     emit setPlaylistListings(QVariant::fromValue(dataList));
     this->activePlaylist = this->playlists.size() - 1;
-    //this->changeTrackListings(this->getActivePlaylistIndex());
+    this->changeTrackListings(this->getActivePlaylistIndex());
 }
 
+/*!
+ * \brief playlist_handler::addPlaylist A slot function which creates a new playlist based off user input
+ * \param playlistTitle A QVariant containing the title of the playlist to be created
+ */
 void playlist_handler::addPlaylist(QVariant playlistTitle)
 {
     this->addPlaylist(playlistTitle.toString());
 }
 
+/*!
+ * \brief playlist_handler::addSong Add a song to the end of the active playlist based off of the search results
+ * \param name The song title
+ * \param hash The song lookup hash for playback
+ * \param artist The name of the artist of the song
+ * \param album The album this song was included in, if any
+ * \param length The length of the song in seconds
+ * \param genre A list of genres, seperated by commas
+ * \param trackNumber The number on the album that this track was a part of
+ */
 void playlist_handler::addSong(QVariant name, QVariant hash, QVariant artist, QVariant album,
         int length, QVariant genre, int trackNumber)
 {
@@ -119,6 +139,11 @@ void playlist_handler::addSong(QVariant name, QVariant hash, QVariant artist, QV
     this->savePlaylist(this->activePlaylist);
 }
 
+/*!
+ * \brief playlist_handler::addSong Adds a new song to a specific playlist
+ * \param playlistIndex The playlist to be added to
+ * \param songToAdd A playlist_item containing all of the song metadata
+ */
 void playlist_handler::addSong(int playlistIndex, playlist_item songToAdd)
 {
     this->playlists.at(playlistIndex).addSong(songToAdd);
@@ -194,6 +219,10 @@ void playlist_handler::dropPlaylist(QString playlistTitleToDrop)
     emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
+/*!
+ * \brief playlist_handler::dropSong Delete a song from the active playlist from the given index
+ * \param songToDrop The index of the song in the vector of the playlists' songs
+ */
 void playlist_handler::dropSong(int songToDrop)
 {
     if (this->activeSong >= songToDrop)
@@ -231,6 +260,11 @@ void playlist_handler::dropSong(int songToDrop)
     }
 }
 
+/*!
+ * \brief playlist_handler::dropSong Delete a song from a specific playlist
+ * \param playlistIndex The playlist the song is in
+ * \param songToDrop The playlist_item containing the metadata of the song to remove
+ */
 void playlist_handler::dropSong(int playlistIndex, playlist_item songToDrop)
 {
     this->playlists.at(playlistIndex).removeSong(songToDrop);
@@ -697,23 +731,72 @@ void playlist_handler::childDurationChanged()
     emit durationChanged(QVariant(length));
 }
 
+/*!
+ * \brief playlist_handler::metaDataChanged Updates display info when the active song's metadata changes
+ *
+ *
+ * If a song has the meta data for the display set (Artist, Album, Title), the song will display this metadata.
+ * However, if this info can not be found, the display will grab the info from the saved metadata. This
+ * may not be desirable as some times the meta data is obfuscated to be more descriptive.
+ * i.e., Song Title - "Migos - Hannah Montana by DBJUU" when the song title is really "Hannah Montana"
+ */
 void playlist_handler::metaDataChanged()
 {
     QStringList metadata;
 
-    metadata.append(this->player->metaData("AlbumArtist").toString());
-    metadata.append(this->player->metaData("AlbumTitle").toString());
-    metadata.append(this->player->metaData("Title").toString());
-    qDebug() << this->player->metaData("AlbumArt").toString();
+    if ( this->player->metaData("Artist").isNull() )
+    {
+        metadata.append(this->getActivePlaylist().getSong(this->activeSong).artist);
+    }
+    else
+    {
+        metadata.append(this->player->metaData("Artist").toString());
+    }
+
+    if ( this->player->metaData("AlbumTitle").isNull() )
+    {
+        metadata.append(this->getActivePlaylist().getSong(this->activeSong).album);
+    }
+    else
+    {
+        metadata.append(this->player->metaData("AlbumTitle").toString());
+    }
+
+    if ( this->player->metaData("Title").isNull() )
+    {
+        metadata.append(this->getActivePlaylist().getSong(this->activeSong).getSongName());
+    }
+    else
+    {
+        metadata.append(this->player->metaData("Title").toString());
+    }
 
     emit displayData(QVariant::fromValue(metadata));
 }
 
+/*!
+ * \brief playlist_handler::metaDataChanged Log the new metadata discovered in the console.
+ *
+ *
+ * When a song is set as the active song, meta data comes in tiny pieces. As these pieces are discovered,
+ * this function will log what types of metadata is available for the song, along with the values.
+ *
+ * \param key The type of metadata discovered
+ * \param value The value of the metadata set.
+ */
 void playlist_handler::metaDataChanged(QString key, QVariant value)
 {
-    //qDebug() << key << ":" << value.toString();
+    qDebug() << key << ":" << value.toString();
 }
 
+/*!
+ * \brief playlist_handler::onSearchReceived Parses search results and gives the parsed data to the QML to display
+ *
+ *
+ * Gets the search results from the communicator as a JSon Object. This function goes through the JSon to get lists
+ * of all of the available metadata which will be necessary for playing/saving the music.
+ * \param doc The JSon document containing search results
+ */
 void playlist_handler::onSearchReceived(QJsonObject doc)
 {
     QStringList songNames;
@@ -763,13 +846,19 @@ void playlist_handler::onSearchReceived(QJsonObject doc)
         QVariant::fromValue(genres), QVariant::fromValue(trackNumbers), QVariant::fromValue(strLengths));
 }
 
+/*!
+ * \brief playlist_handler::savePlaylist Creates a JSonObject containing all of the playlist info for saving purposes
+ * \param index The index of the playlist to be saved.
+ */
 void playlist_handler::savePlaylist(int index)
 {
     QJsonArray tracks;
 
-    QJsonObject playlist{
+    this->getActivePlaylist().setTime();
+
+    QJsonObject playlist {
         {"name", this->getPlaylist(index).getPlaylistTitle()},
-        {"last_saved", "0:00"},
+        {"last_saved", this->getPlaylist(index).getTime().toString()},
     };
 
     for ( int i = 0 ; i < this->getPlaylist(index).getSongs().length() ; i++ )
@@ -802,6 +891,11 @@ void playlist_handler::savePlaylist(int index)
     playlist["tracks"] = tracks;
 }
 
+/*!
+ * \brief playlist_handler::getAllPlaylists Parses a QJsonArray containing all of the playlists that have been saved
+ * and adds them to the media player.
+ * \param playlists A QJsonArray containing all of the playlist info.
+ */
 void playlist_handler::getAllPlaylists(QJsonArray playlists)
 {
     foreach (QJsonValue play, playlists)
@@ -842,6 +936,16 @@ void playlist_handler::getAllPlaylists(QJsonArray playlists)
     }
 }
 
+/*!
+ * \brief playlist_handler::playSingleSong Creates a new playlist for a single song and plays a single song
+ * \param name The name of the song to be played
+ * \param hash The hash of the song's actual audio location
+ * \param artist The artist of the piece
+ * \param album The album, if any, that the piece was recorded on
+ * \param length The length of the song in seconds
+ * \param genre The genres that describe the song, seperated by commas
+ * \param trackNumber The position of the song on its album, if any
+ */
 void playlist_handler::playSingleSong(QVariant name, QVariant hash, QVariant artist, QVariant album,
                                       int length, QVariant genre, int trackNumber)
 {

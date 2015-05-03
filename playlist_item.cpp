@@ -21,6 +21,16 @@ playlist_item::playlist_item()
     this->genre = "";
 }
 
+/*!
+ * \brief playlist_item::playlist_item Create a new playlist item with all of the metadata needed for playback
+ * \param hash The hash of the song's audio location in the database
+ * \param songName The song's name, as given to us from search results. Might be messy
+ * \param length The length of the song in seconds. Will also generate a string for displaying.
+ * \param album The album the song was a part of, if any.
+ * \param artist The artists that played the song
+ * \param track The track number, indicating its position on its album if any
+ * \param genre The genres that describe the song seperated by commas
+ */
 playlist_item::playlist_item(QString hash, QString songName, int length,
         QString album, QString artist, int track, QString genre)
 {
@@ -43,6 +53,12 @@ playlist_item::playlist_item(QString hash, QString songName, int length,
     this->genre = genre;
 }
 
+/*!
+ * \brief playlist_item::playlist_item (deprecated) A minimal functionality constructor.
+ * \param hash The hash of the song's audio location in the database
+ * \param songName The song's name, as given to us from search results. Might be messy
+ * \param length The length of the song in seconds.
+ */
 playlist_item::playlist_item(QString hash, QString songName, int length)
 {
     this->hash = hash;

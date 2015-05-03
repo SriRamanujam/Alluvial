@@ -18,10 +18,15 @@ public:
     void setSongName(QString);
     void setSongLength(int);
 
+    //! The album the song was on, if any
     QString album;
+    //! The artists who were featured on the track.
     QString artist;
+    //! The position of the song in the album it was on, if it was on any
     int track_number;
+    //! The length of the song in a string for displaying purposes
     QString stringLength;
+    //! The genres that describe the song, seperated by commas
     QString genre;
 
 private:
