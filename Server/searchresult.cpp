@@ -70,6 +70,10 @@ void SearchResult::onSoundcloudSearchComplete(QJsonArray *obj)
         return;
     }
     scRes = obj;
+    qDebug() << "Soundcloud received results:";
+    qDebug() << QJsonDocument(*obj).toJson();
+    qDebug() << "Soundcloud stored results:";
+    qDebug() << QJsonDocument(*scRes).toJson();
     SOUNDCLOUD_COMPLETE = true;
         if (SPOTIFY_COMPLETE && SOUNDCLOUD_COMPLETE && DB_COMPLETE) {
             constructFullResult();
@@ -129,6 +133,8 @@ void SearchResult::insertObjectsIntoResults(QJsonArray *arr, SearchResultType ty
     case SearchResultType::Spotify: resType = "spotify: ";
         break;
     }
+
+    qDebug() << arr->toVariantList();
 
     for (int i = 0; i < arr->size() ; i++) {
         QJsonValue val = arr->at(i);

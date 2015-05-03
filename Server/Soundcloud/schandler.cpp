@@ -114,22 +114,26 @@ QJsonArray SCHandler::search(QString value, QString key){
     return results;
 }
 
-QJsonArray SCHandler::search(int count, QString value, QString key){
-    QJsonArray results = QJsonArray();
+QJsonArray *SCHandler::search(int count, QString value, QString key)
+{
+    QJsonArray *results = new QJsonArray();
+    QJsonObject jobj;
+    QString result;
     int num_queried = query(key, value);
     for(int i=0; i<num_queried; i++){
-        QJsonObject jobj = raw_results[i].toObject();
-        QString result = jobj["download_url"].toString();
+        jobj = raw_results[i].toObject();
+        result = jobj["download_url"].toString();
         qDebug() << result.compare(QString(""));
         if(result.compare(QString("")) != 0)
-            results.append(format(raw_results[i]));
+            results->append(format(raw_results[i]));
     }
-    if(count > results.size())
-        count = results.size();
+    if(count > results->size())
+        count = results->size();
     for(int i=0; i<count; i++){
-        results.append(format(raw_results[i]));
+        results->append(format(raw_results[i]));
     }
-    emit onSearchComplete(&results);
+    qDebug() << QJsonDocument(*results).toJson();
+    emit onSearchComplete(results);
     return results;
 }
 

@@ -92,7 +92,7 @@ public:
      \param value: A QString corresponding to the value used in the query
      \return A QJsonArray containing the first "count" results
     */
-    QJsonArray search(int count, QString value, QString key=QString("q"));
+    QJsonArray *search(int count, QString value, QString key=QString("q"));
 
     /*!
      \brief Requests a song from Soundcloud using the download_url
