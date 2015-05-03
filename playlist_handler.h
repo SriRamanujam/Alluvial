@@ -9,6 +9,8 @@
 #include <QMediaPlayer>
 #include <QObject>
 #include <QTime>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class playlist_handler:public QObject
 {
@@ -44,7 +46,6 @@ public:
     void setRepeat(bool);
 
     // Taken from the old mediaplayer class
-    void play(QByteArray);
     double getMediaDuration();
     int positionChanged();
 
@@ -59,8 +60,17 @@ public slots:
     void jumpToSong(QString);
     void jumpToSong(int);
     void metaDataChanged();
+    void metaDataChanged(QString, QVariant);
+    void dropSong(int);
+    void addSong(QVariant, QVariant, int);
+    void addSong(QVariant, QVariant, QVariant, QVariant, int, QVariant, int);
+    void onSearchReceived(QJsonObject);
+    void savePlaylist(int);
+    void getAllPlaylists(QJsonArray);
+    void playSingleSong(QVariant, QVariant, QVariant, QVariant, int, QVariant, int);
 
     // Taken from the old mediaplayer class
+    void play(QByteArray);
     void play();
     void pause();
     void skipTo(int);
@@ -77,6 +87,10 @@ signals:
     void setPlaylistListings(QVariant);
     void changeActiveSong(QVariant);
     void displayData(QVariant);
+    void loadingSong();
+    void requestSong(QString);
+    void displaySearchResults(QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant);
+    void activePlaylistChanged(QVariant);
 
     // Taken from the old mediaplayer class
     void durationChanged(QVariant);

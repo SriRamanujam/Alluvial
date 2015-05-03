@@ -1,8 +1,10 @@
 #include "playlist_handler.h"
 #include "playlist.h"
 #include "dataobject.h"
+#include <string>
 #include <vector>
 #include <QDebug>
+#include <QJsonDocument>
 #include <QAbstractListModel>
 #include <QQmlContext>
 #include <QQuickView>
@@ -36,6 +38,8 @@ playlist_handler::playlist_handler()
         this, SLOT(childDurationChanged()));
     QObject::connect(this->player, SIGNAL(metaDataChanged()),
         this, SLOT(metaDataChanged()));
+    QObject::connect(this->player, SIGNAL(metaDataChanged(QString, QVariant)),
+        this, SLOT(metaDataChanged(QString, QVariant)));
 }
 
 playlist_handler::~playlist_handler()
@@ -95,6 +99,28 @@ void playlist_handler::addPlaylist(QString playlistTitle)
     emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
+void playlist_handler::addSong(QVariant name, QVariant hash, int length)
+{
+    playlist_item *toInsert = new playlist_item(hash.toString(), name.toString(), length);
+    this->playlists.at(activePlaylist).addSong(*toInsert);
+    this->playlists.at(activePlaylist).setTime();
+
+    emit changeTrackListings(activePlaylist);
+    this->savePlaylist(this->activePlaylist);
+}
+
+void playlist_handler::addSong(QVariant name, QVariant hash, QVariant artist, QVariant album,
+        int length, QVariant genre, int trackNumber)
+{
+    playlist_item *toInsert = new playlist_item(hash.toString(), name.toString(), length,
+                album.toString(), artist.toString(), trackNumber, genre.toString());
+    this->playlists.at(activePlaylist).addSong(*toInsert);
+    this->playlists.at(activePlaylist).setTime();
+
+    emit changeTrackListings(activePlaylist);
+    this->savePlaylist(this->activePlaylist);
+}
+
 void playlist_handler::addSong(int playlistIndex, playlist_item songToAdd)
 {
     this->playlists.at(playlistIndex).addSong(songToAdd);
@@ -102,6 +128,8 @@ void playlist_handler::addSong(int playlistIndex, playlist_item songToAdd)
     {
         emit changeTrackListings(playlistIndex);
     }
+    this->playlists.at(activePlaylist).setTime();
+    this->savePlaylist(playlistIndex);
 }
 
 /*!
@@ -168,9 +196,19 @@ void playlist_handler::dropPlaylist(QString playlistTitleToDrop)
     emit setPlaylistListings(QVariant::fromValue(dataList));
 }
 
+void playlist_handler::dropSong(int songToDrop)
+{
+    this->playlists.at(this->activePlaylist).removeSong(songToDrop);
+    emit changeTrackListings(this->activePlaylist);
+    this->playlists.at(activePlaylist).setTime();
+    this->savePlaylist(this->activePlaylist);
+}
+
 void playlist_handler::dropSong(int playlistIndex, playlist_item songToDrop)
 {
     this->playlists.at(playlistIndex).removeSong(songToDrop);
+    this->playlists.at(activePlaylist).setTime();
+    this->savePlaylist(playlistIndex);
 }
 
 /*!
@@ -196,6 +234,8 @@ void playlist_handler::nextSong()
     }
 
     emit changeActiveSong(QVariant(this->activeSong));
+    emit loadingSong();
+    emit requestSong(this->getActiveSongHash());
     qDebug() << "Active Song Index:" << this->activeSong;
 }
 
@@ -222,6 +262,8 @@ void playlist_handler::previousSong()
     }
 
     emit changeActiveSong(QVariant(this->activeSong));
+    emit loadingSong();
+    emit requestSong(this->getActiveSongHash());
     qDebug() << "Active Song Index:" << this->activeSong;
 }
 
@@ -448,7 +490,7 @@ void playlist_handler::changeTrackListings(int index)
     QStringList dataList;
     for ( int i = 0; i < this->getActivePlaylist().getSongs().size() ; i++ )
     {
-        dataList.append(this->getActivePlaylist().getSongs().at(i).getSongName());
+        dataList.append(this->getActivePlaylist().getSong(i).getSongName());
     }
 
     emit setTrackListings(QVariant::fromValue(dataList));
@@ -608,6 +650,154 @@ void playlist_handler::metaDataChanged()
     metadata.append(this->player->metaData("AlbumArtist").toString());
     metadata.append(this->player->metaData("AlbumTitle").toString());
     metadata.append(this->player->metaData("Title").toString());
+    qDebug() << this->player->metaData("AlbumArt").toString();
 
     emit displayData(QVariant::fromValue(metadata));
+}
+
+void playlist_handler::metaDataChanged(QString key, QVariant value)
+{
+    //qDebug() << key << ":" << value.toString();
+}
+
+void playlist_handler::onSearchReceived(QJsonObject doc)
+{
+    QStringList songNames;
+    QStringList hashes;
+    QStringList artists;
+    QStringList albums;
+    QStringList strLengths;
+    QStringList genres;
+    QList<int> lengths;
+    QList<int> trackNumbers;
+
+    QJsonArray results = doc["response"].toObject()["results"].toObject()["results"].toArray();
+
+    foreach (QJsonValue result, results)
+    {
+        hashes.append(result.toObject()["hash"].toString());
+
+        songNames.append(result.toObject()["metadata"].toObject()["title"].toString());
+        artists.append(result.toObject()["metadata"].toObject()["artist"].toString());
+        albums.append(result.toObject()["metadata"].toObject()["album"].toString());
+        strLengths.append(result.toObject()["metadata"].toObject()["length"].toString());
+        genres.append(result.toObject()["metadata"].toObject()["genre"].toString());
+        trackNumbers.append(result.toObject()["metadata"].toObject()["track_number"].toInt());
+
+        QString strLength = result.toObject()["metadata"].toObject()["length"].toString();
+        std::string stdStrLength = strLength.toStdString();
+        int mins = 0;
+        int secs = 0;
+        int index = 0;
+        while (strLength[index].isNumber())
+        {
+            mins = mins * 10 + atoi(stdStrLength.substr(index, 1).c_str());
+            index++;
+        }
+        index++;
+        while (strLength[index].isNumber())
+        {
+            secs = secs * 10 + atoi(stdStrLength.substr(index, 1).c_str());
+            index++;
+        }
+        int length = mins * 60 + secs;
+        lengths.append(length);
+    }
+
+    emit displaySearchResults(QVariant::fromValue(songNames), QVariant::fromValue(hashes),
+        QVariant::fromValue(artists), QVariant::fromValue(albums), QVariant::fromValue(lengths),
+        QVariant::fromValue(genres), QVariant::fromValue(trackNumbers), QVariant::fromValue(strLengths));
+}
+
+void playlist_handler::savePlaylist(int index)
+{
+    QJsonArray tracks;
+
+    QJsonObject playlist{
+        {"name", this->getPlaylist(index).getPlaylistTitle()},
+        {"last_saved", "0:00"},
+    };
+
+    for ( int i = 0 ; i < this->getPlaylist(index).getSongs().length() ; i++ )
+    {
+        playlist_item song = this->getPlaylist(index).getSong(i);
+        QString title = song.getSongName();
+        QString album = song.album;
+        QString artist = song.artist;
+        QString track_number = QVariant(song.track_number).toString();
+        QString length = song.stringLength;
+        QString genre = song.genre;
+
+        QJsonObject metadata{
+            {"title", title},
+            {"album", album},
+            {"artist", artist},
+            {"track_number", track_number},
+            {"length", length},
+            {"genre", genre},
+        };
+
+        QJsonObject media {
+            {"hash", song.getHash()},
+            {"order", i},
+        };
+
+        media["metadata"] = metadata;
+        tracks.append(media);
+    }
+    playlist["tracks"] = tracks;
+}
+
+void playlist_handler::getAllPlaylists(QJsonArray playlists)
+{
+    foreach (QJsonValue play, playlists)
+    {
+        QString title = play.toObject()["name"].toString();
+        QJsonArray tracks = play.toObject()["tracks"].toArray();
+        playlist *tmp = new playlist(title);
+        foreach (QJsonValue track, tracks)
+        {
+            QString songName = track.toObject()["metadata"].toObject()["title"].toString();
+            QString hash = track.toObject()["hash"].toString();
+            QString album = track.toObject()["metadata"].toObject()["album"].toString();
+            QString artist = track.toObject()["metadata"].toObject()["artist"].toString();
+            int track_num = track.toObject()["metadata"].toObject()["track_number"].toInt();
+            QString strLength = track.toObject()["metadata"].toObject()["length"].toString();
+            std::string stdStrLength = strLength.toStdString();
+            QString genre = track.toObject()["metadata"].toObject()["genre"].toString();
+            int mins = 0;
+            int secs = 0;
+            int index = 0;
+            while (strLength[index].isNumber())
+            {
+                mins = mins * 10 + atoi(stdStrLength.substr(index, 1).c_str());
+                index++;
+            }
+            index++;
+            while (strLength[index].isNumber())
+            {
+                secs = secs * 10 + atoi(stdStrLength.substr(index, 1).c_str());
+                index++;
+            }
+            int length = mins * 60 + secs;
+
+            playlist_item *tmpItem = new playlist_item(songName, hash, length, album, artist, track_num, genre);
+            tmp->addSong(*tmpItem);
+        }
+        this->addPlaylist(*tmp);
+    }
+}
+
+void playlist_handler::playSingleSong(QVariant name, QVariant hash, QVariant artist, QVariant album,
+                                      int length, QVariant genre, int trackNumber)
+{
+    emit loadingSong();
+
+    this->dropPlaylist("Single Song");
+    this->addPlaylist("Single Song");
+    this->activePlaylist = this->playlists.size()-1;
+    this->addSong(name, hash, artist, album, length, genre, trackNumber);
+    this->requestSong(hash.toString());
+
+    emit activePlaylistChanged("Single Song");
 }
