@@ -34,6 +34,7 @@ class SCHandler : public QObject
 private:
     QJsonArray raw_results;
 
+
     /*!
      \brief Used by search() to make the call to the Soundcloud API using
             a QT GET request.
@@ -79,7 +80,6 @@ public:
     QJsonArray search(QString value, QString key=QString("q"));
 
     /*!
-     \warning RETURNS ALL RESULTS. NOT JUST DOWNLOADABLE
      \brief Searches the Soundcloud database using a key and associated
             value. This pair corresponds to song metadata that is used
             to request song results from Soundcloud. The search results
@@ -95,7 +95,6 @@ public:
     QJsonArray search(int count, QString value, QString key=QString("q"));
 
     /*!
-     \warning RETURNS ALL RESULTS. NOT JUST DOWNLOADABLE
      \brief Requests a song from Soundcloud using the download_url
             supplied by a Soundcloud query(). The value associated
             with the download_url key provides access to an interstitial
