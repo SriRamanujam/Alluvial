@@ -13,8 +13,6 @@ public:
     playlist();
     playlist(QString);
     ~playlist();
-    void jumpToSong(QString);
-    void jumpToSong(int);
     void addSong(playlist_item);
     void removeSong(int);
     void removeSong(playlist_item);

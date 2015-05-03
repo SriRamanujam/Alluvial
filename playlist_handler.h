@@ -83,19 +83,31 @@ public slots:
     void childDurationChanged();
 
 signals:
+    //! Displays the tracks of the currently active playlist in the Playlist Panel List View
     void setTrackListings(QVariant);
+    //! Displays the playlists in the Playlist Panel Combo Box
     void setPlaylistListings(QVariant);
+    //! Change the active song so the Playlist Panel List View highlights the active song
     void changeActiveSong(QVariant);
+    //! Display the meta data of the active song for the Item Detail View
     void displayData(QVariant);
+    //! Signal the Item Detail View to show the loading.gif
     void loadingSong();
+    //! Signal the communications handler to search for the string given
     void requestSong(QString);
+    //! Display the search results in the Search Song Results View
     void displaySearchResults(QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant);
+    //! Signal the Playlist Panel Combo Box to select the active playlist
     void activePlaylistChanged(QVariant);
+    //! Signal the Playback Bar to show the play screen when a song has loaded
     void playSong();
+    //! Signal the Playback Bar to show the pause screen when a song is being requested
     void songPaused();
 
     // Taken from the old mediaplayer class
+    //! When the duration of the song has changed, signal the Playback Bar so it displays the length of the song
     void durationChanged(QVariant);
+    //! When the playlist_handler is notified of the media player changing song position, signal the new time
     void positionChanged(QVariant);
 
 private:
