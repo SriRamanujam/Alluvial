@@ -6,8 +6,6 @@
 #include <QWebSocket>
 #include <QJsonObject>
 
-
-
 class CommunicationHandler : public QObject
 {
     Q_OBJECT
@@ -16,14 +14,12 @@ public:
     ~CommunicationHandler();
 
     //methods to do things
-    void sendSearchRequest(QString req);
-    void sendMediaRequest(QString hash);
     void sendAuthRequest(QString pass); // should we handle this as a part of init?
 
-    void sendSettings();
-    void sendPlaylist();
+    void sendSettings(); // Doesn't work
+    void sendPlaylist(); // Doesn't work
 
-    void connectToServer(QString host);
+    void connectToServer(QString host); // No need
 
 signals:
     // when things happen, call these guys. Literally the Ghostbusters.
@@ -39,8 +35,11 @@ signals:
     void mediaError(QString err);
     void authError(QString err);
     void connectionLost();
+
 public slots:
-    
+    void sendSearchRequest(QVariant req); // Input = search request
+    void sendMediaRequest(QString hash);
+
 private:
     QWebSocket *socket;
 

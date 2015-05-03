@@ -76,11 +76,12 @@ void CommunicationHandler::sendPlaylist()
  *
  * \param req The QString containing the search query.
  */
-void CommunicationHandler::sendSearchRequest(QString req)
+void CommunicationHandler::sendSearchRequest(QVariant req)
 {
+    QString request = req.toString();
     QJsonObject inner
     {
-        {"query", req}
+        {"query", request}
     };
 
     QJsonObject obj
