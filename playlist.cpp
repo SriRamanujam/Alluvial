@@ -48,7 +48,7 @@ void playlist::moveSong(playlist_item songToMove, int newPosition)
  */
 void playlist::addSong(playlist_item newSong)
 {
-    this->songs.insert(this->songs.begin(), newSong);
+    this->songs.insert(this->songs.end(), newSong);
 }
 
 /*!
