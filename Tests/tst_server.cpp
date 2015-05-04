@@ -23,6 +23,7 @@ private Q_SLOTS:
 
     void testUnsuccessfulAuthFlow();
     void testSearchRequestQueryResponseMatchesQuery();
+    void testSearchResponseMatchesExpectedResult();
 private:
     CommunicationHandler *comm;
     void sendSuccessfulAuth();
@@ -35,7 +36,7 @@ ServerTest::ServerTest()
 
 void ServerTest::init()
 {
-    comm = new CommunicationHandler("ws://postgres-migrate-test.cloudapp.net:8900");
+    comm = new CommunicationHandler("ws://192.168.2.18:8900");
     QSignalSpy initSpy(comm, SIGNAL(commConnected()));
     QVERIFY(initSpy.isValid());
 
@@ -46,6 +47,48 @@ void ServerTest::init()
 void ServerTest::cleanup()
 {
     comm->deleteLater();
+}
+
+void ServerTest::testSearchResponseMatchesExpectedResult()
+{
+    QSignalSpy searchSpy(comm, SIGNAL(onSearchReceived(QJsonObject)));
+    QVERIFY(searchSpy.isValid());
+
+    comm->sendSearchRequest("Flo Rida");
+    QTest::qWait(3000);
+
+    QCOMPARE(searchSpy.count(), 1);
+    QList<QVariant> args = searchSpy.takeFirst();
+
+    QJsonObject obj = args.at(0).toJsonObject();
+    QJsonObject res = obj["response"].toObject()["results"].toObject();
+
+    QCOMPARE(res["number"].toInt(), 11);
+    QJsonObject test
+    {
+        {"hash", "AwKakwe3NoIgrKU="},
+        {"order", ""}
+    };
+
+    QJsonObject metadata
+    {
+        {"album", "My House"},
+        {"artist", "Flo Rida Feat. Sage The Gemini"},
+        {"genre", "Hip-Hop, Trap"},
+        {"length", "3:08"},
+        {"title", "G.D.F.R. (Going Down For Real)"},
+        {"track_number", 6}
+    };
+
+    test["metadata"] = metadata;
+
+    QJsonObject first = obj["response"]
+                       .toObject()["results"]
+                       .toObject()["results"]
+                       .toArray()
+                       .at(0)
+                       .toObject();
+    QVERIFY(test == first);
 }
 
 void ServerTest::sendSuccessfulAuth()
