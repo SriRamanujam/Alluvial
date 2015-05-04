@@ -25,6 +25,9 @@ public:
 
     void connectToServer(QString host);
 
+    // for testing
+    QWebSocket *socket;
+
 signals:
     // when things happen, call these guys. Literally the Ghostbusters.
     void onPlaylistReceived(QJsonDocument doc);
@@ -44,7 +47,7 @@ signals:
 public slots:
 
 private:
-    QWebSocket *socket;
+
 
     void handleSearchResponse(QJsonObject obj);
     void handleAuthResponse(QJsonObject obj);

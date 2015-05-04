@@ -19,15 +19,18 @@ public:
 private Q_SLOTS:
     void init();
     void cleanup();
-    void testSuccessfulAuthenticationFlow();
 
+    void testSuccessfulAuthenticationFlow();
     void testUnsuccessfulAuthFlow();
+
     void testSearchRequestQueryResponseMatchesQuery();
     void testSearchResponseMatchesExpectedResult();
     void testNonsenseQueryReturnsZeroResults();
+
     void testEnsureMediaRequestsAlwaysReturnSameFile();
     void testEnsureMediaResponseMatchesExpected();
     void testNonsenseHashReturnsEmptyByteArray();
+    void testInvalidJSONDoesNothing();
 private:
     CommunicationHandler *comm;
     void sendSuccessfulAuth();
@@ -52,6 +55,30 @@ void ServerTest::init()
 void ServerTest::cleanup()
 {
     comm->deleteLater();
+}
+
+void ServerTest::testInvalidJSONDoesNothing()
+{
+    QSignalSpy nonsenseSpy(comm->socket, SIGNAL(textMessageReceived(QString)));
+    QVERIFY(nonsenseSpy.isValid());
+    QSignalSpy commSpy1(comm, SIGNAL(onSearchReceived(QJsonObject)));
+    QSignalSpy commSpy2(comm, SIGNAL(onMediaReceived(QByteArray)));
+    QSignalSpy commSpy3(comm, SIGNAL(onErrorReceived(QString)));
+    QSignalSpy commSpy4(comm, SIGNAL(onAuthReceived(bool)));
+
+    QJsonObject nonsense
+    {
+        {"nonsense", "this is an invalid json request"},
+        {"order", ""}
+    };
+
+    comm->socket->sendTextMessage(QJsonDocument(nonsense).toJson());
+
+    QTest::qWait(5000);
+    QVERIFY(commSpy1.size() == 0);
+    QVERIFY(commSpy2.size() == 0);
+    QVERIFY(commSpy3.size() == 0);
+    QVERIFY(commSpy4.size() == 0);
 }
 
 void ServerTest::testNonsenseHashReturnsEmptyByteArray()
@@ -88,7 +115,7 @@ void ServerTest::testEnsureMediaResponseMatchesExpected()
     QList<QVariant> ret = mediaSpy.takeFirst();
     QByteArray sent = ret.at(0).toByteArray();
 
-    QCOMPARE(disk, sent);
+    QCOMPARE(sent, disk);
 }
 
 void ServerTest::testEnsureMediaRequestsAlwaysReturnSameFile()
