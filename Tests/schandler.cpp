@@ -48,7 +48,7 @@ int SCHandler::query(QString key, QString value){
         QJsonParseError err;
         QJsonDocument jsondoc = QJsonDocument(QJsonDocument::fromJson(QString(reply->readAll()).toUtf8(), &err)); //raw string to qtstring to bytecode to jsondoc fucking shit
         QJsonArray arr = jsondoc.array();
-        qDebug() << QJsonDocument(arr).toJson();
+//        qDebug() << QJsonDocument(arr).toJson();
         raw_results = arr; //take the pile of responses and make them an array so you can fucking do something with the
 //        qDebug() << raw_results;
 
