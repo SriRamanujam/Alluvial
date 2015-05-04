@@ -1,4 +1,4 @@
-TEMPLATE = app
+TEMPLATE = subdirs
 
 SUBDIRS += \
     Server \
