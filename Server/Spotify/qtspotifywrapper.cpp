@@ -257,7 +257,7 @@ bool QtSpotifyWrapper::initSpotify(QString username, QString password)
     config.application_key_size = sizeof(g_appkey);
     qDebug() << sizeof(g_appkey);
     config.user_agent = USER_AGENT;
-    config.callbacks = &callbacks
+    config.callbacks = &callbacks;
     config.proxy = 0x0;
     config.proxy_password=0x0;
     config.proxy_username=0x0;
