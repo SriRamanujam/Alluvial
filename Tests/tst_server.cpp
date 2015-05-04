@@ -24,6 +24,10 @@ private Q_SLOTS:
     void testUnsuccessfulAuthFlow();
     void testSearchRequestQueryResponseMatchesQuery();
     void testSearchResponseMatchesExpectedResult();
+    void testNonsenseQueryReturnsZeroResults();
+    void testEnsureMediaRequestsAlwaysReturnSameFile();
+    void testEnsureMediaResponseMatchesExpected();
+    void testNonsenseHashReturnsEmptyByteArray();
 private:
     CommunicationHandler *comm;
     void sendSuccessfulAuth();
@@ -42,11 +46,96 @@ void ServerTest::init()
 
     QTest::qWait(250);
     QCOMPARE(initSpy.count(), 1);
+    sendSuccessfulAuth();
 }
 
 void ServerTest::cleanup()
 {
     comm->deleteLater();
+}
+
+void ServerTest::testNonsenseHashReturnsEmptyByteArray()
+{
+    QSignalSpy mediaSpy(comm, SIGNAL(onMediaReceived(QByteArray)));
+    QVERIFY(mediaSpy.isValid());
+
+    comm->sendMediaRequest("now put your hands up!"); // has spaces, so guaranteed not to be valid
+
+    QTest::qWait(7000);
+    QCOMPARE(mediaSpy.count(), 1);
+
+    QList<QVariant> ret = mediaSpy.takeFirst();
+    QByteArray sent = ret.at(0).toByteArray();
+
+    QVERIFY(sent.size() == 0);
+}
+
+void ServerTest::testEnsureMediaResponseMatchesExpected()
+{
+    QSignalSpy mediaSpy(comm, SIGNAL(onMediaReceived(QByteArray)));
+    QVERIFY(mediaSpy.isValid());
+
+    QFile onDisk("/home/sri/Music/Singles/flo-rida-feat-sage-the-gemini-igdfr.mp3");
+    QVERIFY(onDisk.open(QIODevice::ReadOnly));
+
+    QByteArray disk = onDisk.readAll();
+
+    comm->sendMediaRequest("AwINBJAgoRW3OzI=");
+
+    QTest::qWait(7000);
+    QCOMPARE(mediaSpy.count(), 1);
+
+    QList<QVariant> ret = mediaSpy.takeFirst();
+    QByteArray sent = ret.at(0).toByteArray();
+
+    QCOMPARE(disk, sent);
+}
+
+void ServerTest::testEnsureMediaRequestsAlwaysReturnSameFile()
+{
+    QSignalSpy mediaSpy(comm, SIGNAL(onMediaReceived(QByteArray)));
+    QVERIFY(mediaSpy.isValid());
+
+    comm->sendMediaRequest("AwINBJAgoRW3OzI=");
+
+    QTest::qWait(7000);
+    QCOMPARE(mediaSpy.count(), 1);
+
+    QList<QVariant> ret = mediaSpy.takeFirst();
+    QByteArray first = ret.at(0).toByteArray();
+
+    comm->sendMediaRequest("AwINBJAgoRW3OzI=");
+
+    QTest::qWait(7000);
+    QCOMPARE(mediaSpy.count(), 1);
+
+    QList<QVariant> ret2 = mediaSpy.takeFirst();
+    QByteArray second = ret2.at(0).toByteArray();
+
+    QCOMPARE(first, second);
+}
+
+void ServerTest::testNonsenseQueryReturnsZeroResults()
+{
+    QSignalSpy searchSpy(comm, SIGNAL(onSearchReceived(QJsonObject)));
+    QVERIFY(searchSpy.isValid());
+
+    comm->sendSearchRequest("aosenuthnetuhosentuhasorediaoseuhasoa");
+    QTest::qWait(3000);
+
+    QCOMPARE(searchSpy.count(), 1);
+    QList<QVariant> args = searchSpy.takeFirst();
+
+    QJsonObject obj = args.at(0).toJsonObject();
+    QJsonObject res = obj["response"].toObject()["results"].toObject();
+
+    QCOMPARE(res["number"].toInt(), 0);
+
+    QJsonArray first = obj["response"]
+                       .toObject()["results"]
+                       .toObject()["results"]
+                       .toArray();
+    QCOMPARE(first.size(), 0);
 }
 
 void ServerTest::testSearchResponseMatchesExpectedResult()
@@ -66,7 +155,7 @@ void ServerTest::testSearchResponseMatchesExpectedResult()
     QCOMPARE(res["number"].toInt(), 11);
     QJsonObject test
     {
-        {"hash", "AwKakwe3NoIgrKU="},
+        {"hash", "AwINBJAgoRW3OzI="},
         {"order", ""}
     };
 
@@ -88,6 +177,7 @@ void ServerTest::testSearchResponseMatchesExpectedResult()
                        .toArray()
                        .at(0)
                        .toObject();
+
     QVERIFY(test == first);
 }
 
@@ -106,9 +196,6 @@ void ServerTest::sendSuccessfulAuth()
 
 void ServerTest::testSearchRequestQueryResponseMatchesQuery()
 {
-    // need to create successful auth request every time
-    sendSuccessfulAuth();
-
     QSignalSpy searchSpy(comm, SIGNAL(onSearchReceived(QJsonObject)));
     QVERIFY(searchSpy.isValid());
 
