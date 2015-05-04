@@ -40,7 +40,7 @@ ServerTest::ServerTest()
 
 void ServerTest::init()
 {
-    comm = new CommunicationHandler("ws://192.168.2.18:8900");
+    comm = new CommunicationHandler("ws://postgres-migrate-test.cloudapp.net:8900");
     QSignalSpy initSpy(comm, SIGNAL(commConnected()));
     QVERIFY(initSpy.isValid());
 
