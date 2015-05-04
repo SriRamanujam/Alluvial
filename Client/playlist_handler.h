@@ -9,6 +9,7 @@
 #include <QMediaPlayer>
 #include <QObject>
 #include <QTime>
+#include <QTimer>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -78,6 +79,8 @@ public slots:
     void savePlaylist(int);
     void getAllPlaylists(QJsonArray);
     void playSingleSong(QVariant, QVariant, QVariant, QVariant, int, QVariant, int);
+    void updatePositionWhileRewinding();
+    void updatePositionWhileFastForwarding();
 
     // Taken from the old mediaplayer class
     void play(QByteArray);
@@ -138,6 +141,19 @@ private:
     //! A boolean value for the repeat setting
     /*! Indicates whether to repeat the same song when next song is clicked, or to iterate through */
     bool repeat;
+    //! Keeps track of how long the rewind button is held down for.
+    /*! When the rewind button is clicked, this timer starts up.
+     * When the button is released, the timer pauses and sets the position of the song back
+     * based off of the amount of time the timer has elapsed. */
+    QTime *timer;
+    //! A QTimer that triggers every tenth of a second to update the position of the playback bar
+    /*! This QTimer starts a countdown when the rewind button is pressed. Every time the countdown
+    * hits 0, it emits a signal which is used to update the position of the media player. */
+    QTimer *rewindTimer;
+    //! A QTimer that triggers every tenth of a second to update the position of the playback bar
+    /*! This QTimer starts a countdown when the fast forward button is pressed. Every time the countdown
+     * hits 0, it emits a signal which is used to update the position of the media player. */
+    QTimer *ffTimer;
 
     // Taken from the old mediaplayer class
     //! The media player object

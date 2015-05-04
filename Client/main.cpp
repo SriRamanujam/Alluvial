@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("clientSettings", settings);
 
     playlist_handler *ph = new playlist_handler();
-    CommunicationHandler *comm = new CommunicationHandler("http://23.96.106.209:8900");
+    //CommunicationHandler *comm = new CommunicationHandler("http://10.109.139.24:8900"); // Jeff's computer
+    CommunicationHandler *comm = new CommunicationHandler("http://23.96.106.209:8900"); // Web server
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     engine.rootContext()->setContextProperty("clientSettings", settings);

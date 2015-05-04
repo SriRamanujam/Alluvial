@@ -103,6 +103,7 @@ ColumnLayout {
 
             function changePlaylistListings(newPlaylists)
             {
+                var size = playlistModel.count;
                 playlistModel.clear();
 
                 for ( var i = 0 ; i < newPlaylists.length ; i++ )
@@ -110,6 +111,11 @@ ColumnLayout {
                     playlistModel.insert(i, {"text": newPlaylists[i]});
                 }
                 playlistModel.insert(i, {"text": "Add New Playlist"});
+
+                if ( size > playlistModel.count )
+                {
+                    dropdownPlaylistOptions.__selectPrevItem()
+                }
             }
 
             signal activePlaylistChanged(int currentIndex);
@@ -202,23 +208,6 @@ ColumnLayout {
                 }
             }
 
-            Component {
-                id: track
-                Rectangle {
-                    color: "red"
-                    id: trackItem
-                    height: 20
-                    width: parent.width
-                    MouseArea {
-                        anchors.fill: parent
-                        onDoubleClicked: {
-                            mainWindow.state = "showItemDetailView"
-                        }
-                    }
-
-                }
-            }
-
             ListModel {
                 id: hiderModel
                 ListElement {
@@ -265,7 +254,7 @@ ColumnLayout {
                     for ( var i = 0 ; i < newTracks.length ; i++ )
                     {
                         cppModel.insert(i, {"name": newTracks[i]});
-                        hiderModel.insert(i, {"text": ""});
+                        hiderModel.insert(i, {"name": ""});
                     }
                 }
 
@@ -288,6 +277,8 @@ ColumnLayout {
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: parent.width * 0.05
+                        anchors.right: parent.right
+                        anchors.rightMargin: parent.width * 0.05
                         text: '•' + name
                         elide: Text.ElideRight
                     }
