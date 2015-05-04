@@ -16,8 +16,22 @@ TEMPLATE = app
 
 
 SOURCES += tst_server.cpp \
-    communicationhandler.cpp
+    communicationhandler.cpp \
+    schandler.cpp \
+    playlisthandler.cpp \
+    JSONhandler.cpp \
+    databasehandler.cpp \
+    queryhandler.cpp \
+    songhandler.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
-    communicationhandler.h
+    communicationhandler.h \
+    schandler.h \
+    playlisthandler.h \
+    JSONhandler.h \
+    databasehandler.h \
+    queryhandler.h \
+    songhandler.h
+
+unix:!macx: LIBS += -ltag
