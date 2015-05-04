@@ -3,6 +3,13 @@
 
 #include <QObject>
 
+/*!
+ * \brief The DataObject class Used for displaying playlist songs
+ *
+ *
+ * A utility class needed for displaying songs.
+ * Gets song names from the calling class, and creates list elements for displaying each playlist_item stored in a playlist.
+ */
 class DataObject : public QObject
 {
     Q_OBJECT
