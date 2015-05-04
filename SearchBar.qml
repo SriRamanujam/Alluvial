@@ -18,8 +18,7 @@ Rectangle {
 
         anchors.fill:parent
         onAccepted: {
-            //TODO: send the text in the field to somewhere which will actually do something with it
-            console.log("Search text input: " + searchBarTextField.text);
+            //console.log("Search text input: " + searchBarTextField.text);
             searchBarTextField.searchQuery(searchBarTextField.text);
             mainWindow.state="showSearchResultsPane"
             searchBarTextField.selectAll();
