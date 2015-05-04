@@ -16,26 +16,6 @@
 #include <QtCore>
 #include <thread>
 #include <chrono>
-#include <qtlibspotify.h>
-
-#define NUM_OF_THREADS 4
-
-bool FLAG_CLOSING;
-
-struct spotify_credentials{
-    int thread_id;
-    QString username;
-    QString password;
-};
-
-void *initSpotifyFromMain(void* sp_arguments){
-    QtLibSpotify *spotifyObj = new QtLibSpotify("username", "password");
-
-    while(!FLAG_CLOSING){
-
-    }
-    spotifyObj->closing();
-}
 
 /*! \mainpage About Alluvial
  *
@@ -49,11 +29,6 @@ void *initSpotifyFromMain(void* sp_arguments){
 
 int main(int argc, char *argv[])
 {
-    FLAG_CLOSING = false;
-    pthread_t *spotifyThread;
-    int spotifyThread_id;
-
-    qmlRegisterSingletonType(QUrl("qrc:/GlobalVars.qml"), "Alluvial.Globals", 1, 0, "Globals");
     qmlRegisterType<Settings_storing>("AlluvialSettings", 0, 1, "ClientSettings");
 
 	QApplication app(argc, argv);
@@ -66,12 +41,7 @@ int main(int argc, char *argv[])
     Settings_storing *settings = new Settings_storing();
     QVariant username = settings->value("spotifyUserName");
     QVariant password = settings->value("spotifyPassword");
-    struct spotify_credentials spotifyCreds;
     engine.rootContext()->setContextProperty("clientSettings", settings);
-
-    spotifyCreds.thread_id=1;
-    spotifyCreds.username = username.toString();
-    spotifyCreds.password = password.toString();
 
     playlist_handler *ph = new playlist_handler();
     CommunicationHandler *comm = new CommunicationHandler("http://23.96.106.209:8900");
