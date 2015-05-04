@@ -10,7 +10,6 @@
         <file>SearchResults.qml</file>
         <file>SearchResultsAlbumSubList.qml</file>
         <file>SearchResultsSongSubList.qml</file>
-        <file>z_TODO_List.txt</file>
         <file>SettingsWindow.qml</file>
         <file>FileBrowser.qml</file>
         <file>Scrollbar.qml</file>
