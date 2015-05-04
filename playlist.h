@@ -6,6 +6,14 @@
 #include <QVector>
 #include <QTime>
 
+
+/*!
+ * \brief An individual playlist wrapper, which saves a vector of songs and a name
+ *
+ *
+ * This class saves a QVector of songs which can be pulled and navigated through by the playlist_handler.
+ * Each playlist is given a unique title, which will be used to save and identify playlists.
+ */
 class playlist
 {
 

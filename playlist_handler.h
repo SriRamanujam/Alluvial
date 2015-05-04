@@ -12,6 +12,16 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+/*!
+ * \brief The playlist_handler class The main class for media functionality.
+ * Controls playback, searches, and navigation.
+ *
+ *
+ * The playlist_handler will be responsible for all media playback and connections made from the c++ to the QML.
+ * Contains a vector that will reference all of the made playlists for song playback.
+ * Responsible for communication between the Server and the Client and the parsing of JSon.
+ * Also handles user interaction to not crash during use.
+ */
 class playlist_handler:public QObject
 {
     Q_OBJECT

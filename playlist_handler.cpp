@@ -585,7 +585,7 @@ void playlist_handler::changeTrackListings(int index)
 
 // Taken from old mediaplayer class
 /*!
- * \brief ::play Continue the song to play
+ * \brief play Resume the currently active song
  */
 void playlist_handler::play ()
 {

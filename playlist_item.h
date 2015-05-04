@@ -2,6 +2,13 @@
 #define PLAYLIST_ITEM_H
 #include <QString>
 
+/*!
+ * \brief The playlist_item class An individual song's meta data container.
+ *
+ *
+ * Each playlist_item saves the meta data used by the playlist_handler for communication with the Server.
+ * Does not contain the actual media of a song, but rather, the hash of the song's location in the database.
+ */
 class playlist_item
 {
 public:
