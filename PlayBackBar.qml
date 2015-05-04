@@ -1,7 +1,6 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
-import Alluvial.Globals 1.0
 import QtMultimedia 5.4
 import QtQuick.Controls.Styles 1.2
 
@@ -13,18 +12,6 @@ ColumnLayout {
     Layout.fillHeight: true
     Layout.minimumHeight: 80
     Layout.maximumHeight: 100
-
-    QtObject {
-        id: activeSongMeta
-        objectName: "activeSongMeta"
-        property string hash: '#0'
-        property string songName: "Shake it off"
-        property string album: "1989"
-        property string albumArt: "rawr.jpg"
-        property string artist: "Taylor Swift"
-        property int length: 100
-        property double size: 1024
-    }
 
     Rectangle {
         id: playbackBar

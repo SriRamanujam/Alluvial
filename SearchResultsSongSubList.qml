@@ -1,14 +1,10 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
-import Alluvial.Globals 1.0
 
 Rectangle {
     width: searchBarTextField.width
     anchors.top: searchBarTextField.bottom
     anchors.left:parent.left
-    //color: "#56B3BF"
-
-
 
     RowLayout{
         id:songHeaderText

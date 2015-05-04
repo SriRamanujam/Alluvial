@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     playlist_item.cpp \
     playlist.cpp \
     playlist_handler.cpp \
-    communication/communicationhandler.cpp
+    communication/communicationhandler.cpp \
+    dataobject.cpp
 
 RESOURCES += qml.qrc
 
@@ -27,7 +28,8 @@ HEADERS += \
     playlist_item.h \
     playlist.h \
     playlist_handler.h \
-    communication/communicationhandler.h
+    communication/communicationhandler.h \
+    dataobject.h
 DISTFILES += \
     qmldir.txt \
     Doxyfile
