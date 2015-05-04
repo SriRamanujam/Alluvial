@@ -1,8 +1,9 @@
-TEMPLATE = subdirs
+TEMPLATE = app
 
 SUBDIRS += \
     Server \
-    Tests
+    Tests \
+    Client
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -11,4 +12,5 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 DISTFILES += \
+    qmldir.txt \
     Doxyfile

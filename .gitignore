@@ -28,9 +28,15 @@
 *.app
 
 # Qt-specific files
-Alluvial.pro.user
-doc/
+Alluvial.pro.user*
+
+#appkey file
+
 appkey.h
 appkey.c
 appkey.*
 *.orig
+doc/
+Doxyfile
+music*
+
