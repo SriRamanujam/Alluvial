@@ -113,6 +113,7 @@ signals:
     //! Display the search results in the Search Song Results View
     void displaySearchResults(QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant);
 
+    //! Display all albums that were in the search results to the Search Album Results View
     void displayAlbumsFromSearchResults(QVariant, QVariant);
 
     //! Signal the Playlist Panel Combo Box to select the active playlist
@@ -166,6 +167,7 @@ private:
      * Used to be in the mediaplayer class. */
     QMediaPlayer *player;
 
+    //! A vector that holds all albums gotten from the search results
     std::vector<playlist> albums;
 };
 

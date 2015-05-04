@@ -676,6 +676,10 @@ void playlist_handler::changeTrackListings(int index)
     emit setTrackListings(QVariant::fromValue(dataList));
 }
 
+/*!
+ * \brief playlist_handler::changeTrackListings Change the displayed tracks based off of the playlist title switched to
+ * \param playlistTitle The title of the selected playlist, given to us from QML Signals.
+ */
 void playlist_handler::changeTrackListings(QVariant playlistTitle)
 {
     //qDebug() << "Playlist Title:" << playlistTitle;
@@ -692,6 +696,10 @@ void playlist_handler::changeTrackListings(QVariant playlistTitle)
     }
 }
 
+/*!
+ * \brief playlist_handler::playAlbum Play the specified album which is stored in the album member
+ * \param albumTitle The title of the album to play, given to us from QML Signals.
+ */
 void playlist_handler::playAlbum(QVariant albumTitle)
 {
     playlist *albumPlaylist = new playlist(albumTitle.toString());
