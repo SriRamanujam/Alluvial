@@ -66,6 +66,7 @@ public slots:
     void shuffleSwitch();
     void changePlaylist(int);
     void changeTrackListings(int);
+    void changeTrackListings(QVariant);
     void changePlaylist(QString);
     void previousSong();
     void nextSong();
@@ -79,6 +80,7 @@ public slots:
     void savePlaylist(int);
     void getAllPlaylists(QJsonArray);
     void playSingleSong(QVariant, QVariant, QVariant, QVariant, int, QVariant, int);
+    void playAlbum(QVariant);
     void updatePositionWhileRewinding();
     void updatePositionWhileFastForwarding();
 
@@ -110,6 +112,9 @@ signals:
     void requestSong(QString);
     //! Display the search results in the Search Song Results View
     void displaySearchResults(QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant, QVariant);
+
+    void displayAlbumsFromSearchResults(QVariant, QVariant);
+
     //! Signal the Playlist Panel Combo Box to select the active playlist
     void activePlaylistChanged(QVariant);
     //! Signal the Playback Bar to show the play screen when a song has loaded
@@ -160,6 +165,8 @@ private:
     /*! Controls all of the playback aspects of the actual media player.
      * Used to be in the mediaplayer class. */
     QMediaPlayer *player;
+
+    std::vector<playlist> albums;
 };
 
 #endif // PLAYLIST_HANDLER_H

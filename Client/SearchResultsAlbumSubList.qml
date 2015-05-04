@@ -2,13 +2,19 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
 Rectangle {
+    height: parent.height
     width: parent.width
 
     Flickable {
         id: albumsSearchResultGrid
+        anchors.top: parent.top
+        anchors.topMargin: parent.height * 0.05
         anchors.bottom: parent.bottom
-        height: parent.height
-        width: parent.width
+        anchors.bottomMargin: parent.height * 0.05
+        anchors.left: parent.left
+        anchors.leftMargin: parent.height * 0.05
+        anchors.right: parent.right
+        anchors.rightMargin: parent.height * 0.05
         x: parent.width % albumGrid.cellWidth / 2
 
         GridView{
@@ -30,66 +36,30 @@ Rectangle {
     }
 
     ListModel {
+        objectName: "searchResults"
         id: searchResults
         ListElement {
             image: "container-background.jpg"
             artist: "Taylor Swift"
             albumTitle: "1989"
         }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
-        }
-        ListElement {
-            image: "container-background.jpg"
-            artist: "Taylor Swift"
-            albumTitle: "1989"
+
+        signal playAlbum(var albumTitle)
+
+        function getAlbumsFromSearchResults(artists, albums)
+        {
+            console.log("getAlbumsFromSearchResults called")
+            searchResults.clear();
+
+            for ( var i = 0 ; i < artists.length ; i++ )
+            {
+                var album = {
+                    "image": "container-background.jpg",
+                    "artist": artists[i],
+                    "albumTitle": albums[i]
+                };
+                searchResults.insert(i, album);
+            }
         }
     }
 
@@ -103,8 +73,8 @@ Rectangle {
                 anchors.fill:parent
                 onDoubleClicked:
                 {
-                    console.log("Opening: " + albumTitle)
                     mainWindow.state = "showItemDetailView"
+                    searchResults.playAlbum(albumTitle)
                 }
                 z: 1
             }
@@ -116,16 +86,24 @@ Rectangle {
                 asynchronous: true
                 source: image
                 fillMode: Image.PreserveAspectFit
+                anchors.horizontalCenter: parent.horizontalCenter
             }
             Text {
                 id: albumSearchResultArtist
                 anchors.top: albumSearchResultCoverArt.bottom
+                width: parent.width
                 text: artist
+                elide: Text.ElideRight
+                anchors.horizontalCenter: parent.horizontalCenter
+
             }
             Text {
                 id: albumSearchResultTitle
                 anchors.top: albumSearchResultArtist.bottom
+                width: parent.width
                 text: albumTitle
+                elide: Text.ElideRight
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
 

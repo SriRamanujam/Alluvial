@@ -44,8 +44,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("clientSettings", settings);
 
     playlist_handler *ph = new playlist_handler();
-    //CommunicationHandler *comm = new CommunicationHandler("http://10.109.139.24:8900"); // Jeff's computer
-    CommunicationHandler *comm = new CommunicationHandler("http://23.96.106.209:8900"); // Web server
+    CommunicationHandler *comm = new CommunicationHandler("http://23.96.106.209:8900"); // Sri's web server
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     engine.rootContext()->setContextProperty("clientSettings", settings);
@@ -64,6 +63,7 @@ int main(int argc, char *argv[])
 
     QObject *metadata = root->findChild<QObject*>("songMeta");
     QObject *songSearchResults = root->findChild<QObject*>("songListModel");
+    QObject *albumSearchResults = root->findChild<QObject*>("searchResults");
 
     QObject *searchBar = root->findChild<QObject*>("searchBar");
     QObject *prompt = root->findChild<QObject*>("prompt");
@@ -101,6 +101,12 @@ int main(int argc, char *argv[])
     // Display the search results
     QObject::connect(ph, SIGNAL(displaySearchResults(QVariant,QVariant,QVariant,QVariant,QVariant,QVariant,QVariant,QVariant)),
         songSearchResults, SLOT(displaySearchResults(QVariant,QVariant,QVariant,QVariant,QVariant,QVariant,QVariant,QVariant)));
+
+    QObject::connect(ph, SIGNAL(displayAlbumsFromSearchResults(QVariant,QVariant)),
+        albumSearchResults, SLOT(getAlbumsFromSearchResults(QVariant,QVariant)));
+
+    QObject::connect(albumSearchResults, SIGNAL(playAlbum(QVariant)),
+        ph, SLOT(playAlbum(QVariant)));
 
     // Display the active songs meta data in Item Detail View
     QObject::connect(ph, SIGNAL(displayData(QVariant)),
@@ -180,8 +186,8 @@ int main(int argc, char *argv[])
         ph, SLOT(nextSong()));
 
     // Change what songs are active when the active playlist is changed
-    QObject::connect(playlistDropDown, SIGNAL(activePlaylistChanged(int)),
-        ph, SLOT(changeTrackListings(int)));
+    QObject::connect(playlistDropDown, SIGNAL(activePlaylistChanged(QVariant)),
+        ph, SLOT(changeTrackListings(QVariant)));
 
     // When the active playlist is changed by the playlist handler, display the active playlist
     QObject::connect(ph, SIGNAL(activePlaylistChanged(QVariant)),

@@ -153,6 +153,7 @@ ApplicationWindow {
             anchors.top: parent.top
             anchors.left: playListPanel.right
             anchors.right: parent.right
+            z: 3
         }
     }
 }

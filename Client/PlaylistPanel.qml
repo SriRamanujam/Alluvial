@@ -106,11 +106,20 @@ ColumnLayout {
                 var size = playlistModel.count;
                 playlistModel.clear();
 
+                var listCount = 0;
                 for ( var i = 0 ; i < newPlaylists.length ; i++ )
                 {
-                    playlistModel.insert(i, {"text": newPlaylists[i]});
+                    if ( newPlaylists[i].substring(0,1) == "_" )
+                    {
+
+                    }
+                    else
+                    {
+                        playlistModel.insert(listCount, {"text": newPlaylists[i]});
+                        listCount++;
+                    }
                 }
-                playlistModel.insert(i, {"text": "Add New Playlist"});
+                playlistModel.insert(listCount, {"text": "Add New Playlist"});
 
                 if ( size > playlistModel.count )
                 {
@@ -118,7 +127,7 @@ ColumnLayout {
                 }
             }
 
-            signal activePlaylistChanged(int currentIndex);
+            signal activePlaylistChanged(var currentText);
 
             onCurrentIndexChanged: {
                 if (currentText == "Add New Playlist")
@@ -128,7 +137,7 @@ ColumnLayout {
                 else
                 {
                     trackListings.index = 0;
-                    dropdownPlaylistOptions.activePlaylistChanged(dropdownPlaylistOptions.currentIndex);
+                    dropdownPlaylistOptions.activePlaylistChanged(dropdownPlaylistOptions.currentText);
                 }
             }
 

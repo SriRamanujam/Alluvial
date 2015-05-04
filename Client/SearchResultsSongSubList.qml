@@ -100,7 +100,6 @@ Rectangle {
 
                 function displaySearchResults(songNames, hashes, artists, albums, lengths, genres, trackNumbers, strLengths)
                 {
-                    console.log("displaySearchResults called")
                     songListModel.clear();
 
                     for ( var i = 0 ; i < songNames.length ; i++ )
@@ -160,7 +159,6 @@ Rectangle {
                                 onClicked: {
                                     songListModel.addSongToPlaylist(name, hash, artist, album, length,
                                             genre, track_number)
-                                    console.log ("Add song to playlist")
                                 }
                             }
                         }
@@ -202,20 +200,4 @@ Rectangle {
 
         }
     }
-
-
-    //ideally this function will build an array from data that we will get from the server upon requets from the client's search bar
-    //for now however, it creates a mock array which will hold dummy variables that will populate the ListModel below
-    //NOTE: WIP
-    function buildSongMetaDataArray(){
-        var songMetaDataList = [0, 1, 2, 3, 4,];
-        var songMetaData = [0, 1, 2, 3];
-        for(i=0; i<10;i++){
-            songMetaData[0] = "Song-Name";
-            songMetaData[1] = "Artist";
-            songMetaData[2] = "Album";
-            songMetaData[3] = "5:24";
-            }
-        }
-
 }
