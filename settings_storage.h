@@ -13,8 +13,7 @@
 /*!
  \class Settings_storing
 
- \preliminary
- \brief The Settings_storing class
+ \brief This class saves important settings that will be needed on each run of the Alluvial client.
 
  This class is a wrapper around the QSettings class, develooped by Qt
   This particular class will perform ________
