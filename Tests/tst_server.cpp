@@ -16,15 +16,25 @@
 #include "songhandler.h"
 #include "playlisthandler.h"
 
+#include <libspotify/api.h>
+#include "Spotify/qtspotifysession.h"
+#include "Spotify/qtspotifywrapper.h"
+#include "Settings/settings_storage.h"
+
+
+
 class ServerTest : public QObject
 {
     Q_OBJECT
 
 public:
     ServerTest();
+    bool FLAG_SPOTIFY_READY_FOR_TEST;
+    QtSpotifySession *spotifySessionSingleton;
 
 private Q_SLOTS:
     void init();
+    void initTestCase();
     void cleanup();
 
     void testSuccessfulAuthenticationFlow();
@@ -58,6 +68,10 @@ private Q_SLOTS:
     void testNonsenseHashReturnsEmptyByteArray();
     void testInvalidJSONDoesNothing();
 
+    void spotifyInitSessionAndLogin();
+    void spotifySearchResultsReceived();
+    void spotifySearchResultsFormatted();
+
 
 private:
     CommunicationHandler *comm;
@@ -73,6 +87,16 @@ private:
 ServerTest::ServerTest()
 {
 
+}
+
+void ServerTest::initTestCase()
+{
+    QCoreApplication::instance()->setOrganizationName("AlluvialAlphaBuild");
+    QCoreApplication::instance()->setApplicationName("Alluvial");
+    FLAG_SPOTIFY_READY_FOR_TEST = false;
+    spotifySessionSingleton = new QtSpotifySession();
+    //spotifySessionSingleton->initSpotify();
+    //QtSpotifyWrapper *spotifyWrapperSingleton = new QtSpotifyWrapper();
 }
 
 void ServerTest::init()
@@ -579,7 +603,29 @@ void ServerTest::playlistGetSetTest(){
     QJsonObject result = playlist->getPlaylist("PLTest");
 
     QCOMPARE(result, media);
+}
 
+void ServerTest::spotifyInitSessionAndLogin()
+{
+    QVERIFY(spotifySessionSingleton->initSpotify());
+}
+
+void ServerTest::spotifySearchResultsReceived()
+{
+    spotifySessionSingleton->startSearch("TEST STRING ASDFGHJKLASDFGHJKLASDFGHJKL");
+    QSignalSpy searchResultsReadySpy(spotifySessionSingleton, &QtSpotifySession::searchResultReady);
+
+    QVERIFY(searchResultsReadySpy.isValid());
+
+    QTest::qWait(2000);     //making the Test wait while the search is being executed by libSpotify
+    QVERIFY(!searchResultsReadySpy.isEmpty());
+}
+void ServerTest::spotifySearchResultsFormatted()
+{
+    spotifySessionSingleton->startSearch("TEST STRING ASDFGHJKLASDFGHJKLASDFGHJKL");
+    QSignalSpy searchResultsReadySpy(spotifySessionSingleton, &QtSpotifySession::searchResultReady);
+    QTest::qWait(2000);     //making the Test wait while the search is being executed by libSpotify
+    QVERIFY(!searchResultsReadySpy.isEmpty());
 }
 
 QTEST_GUILESS_MAIN(ServerTest)
