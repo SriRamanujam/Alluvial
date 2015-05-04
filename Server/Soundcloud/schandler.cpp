@@ -1,4 +1,6 @@
 #include "schandler.h"
+#include <unistd.h>
+
 
 SCHandler::SCHandler(QObject *parent)
 {
@@ -97,8 +99,8 @@ QJsonValue SCHandler::format(QJsonValue initial){
     return QJsonValue(media);
 }
 
-QJsonArray SCHandler::search(QString value, QString key){
-    QJsonArray results = QJsonArray();
+QJsonArray *SCHandler::search(QString value, QString key){
+    QJsonArray *results = new QJsonArray();
     QJsonObject jobj;
     QString result;
     int num_queried = query(key, value);
@@ -107,10 +109,10 @@ QJsonArray SCHandler::search(QString value, QString key){
         result = jobj["download_url"].toString();
 //        qDebug() << result.compare(QString(""));
         if(result.compare(QString("")) != 0)
-            results.append(format(raw_results[i]));
+            results->append(format(raw_results[i]));
     }
-
-    emit onSearchComplete(&results);
+//    sleep(1);
+    emit onSearchComplete(results);
     return results;
 }
 

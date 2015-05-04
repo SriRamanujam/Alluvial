@@ -134,7 +134,7 @@ void SearchResult::insertObjectsIntoResults(QJsonArray *arr, SearchResultType ty
         break;
     }
 
-    qDebug() << arr->toVariantList();
+//    qDebug() << arr->toVariantList();
 
     for (int i = 0; i < arr->size() ; i++) {
         QJsonValue val = arr->at(i);

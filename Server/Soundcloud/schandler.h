@@ -77,7 +77,7 @@ public:
      \return A QJsonArray containing media objects for all the "downloadable"
              songs corresponding to the search
     */
-    QJsonArray search(QString value, QString key=QString("q"));
+    QJsonArray *search(QString value, QString key=QString("q"));
 
     /*!
      \brief Searches the Soundcloud database using a key and associated
