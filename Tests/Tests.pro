@@ -24,7 +24,9 @@ SOURCES += tst_server.cpp \
     queryhandler.cpp \
     songhandler.cpp \
     Spotify/qtspotifysession.cpp \
-    Spotify/qtspotifywrapper.cpp
+    Spotify/qtspotifywrapper.cpp \
+    Settings/settings_storage.cpp \
+    Settings/jsonformatter.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
@@ -36,7 +38,9 @@ HEADERS += \
     queryhandler.h \
     songhandler.h \
     Spotify/qtspotifysession.h \
-    Spotify/qtspotifywrapper.h
+    Spotify/qtspotifywrapper.h \
+    Settings/settings_storage.h \
+    Settings/jsonformatter.h
 
 unix:!macx: LIBS += -ltag
 

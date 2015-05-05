@@ -31,6 +31,7 @@ public:
     ServerTest();
     bool FLAG_SPOTIFY_READY_FOR_TEST;
     QtSpotifySession *spotifySessionSingleton;
+    Settings_storing *settings;
 
 private Q_SLOTS:
     void init();
@@ -72,6 +73,12 @@ private Q_SLOTS:
     void spotifySearchResultsReceived();
     void spotifySearchResultsFormatted();
 
+    void settingsSyncOccured();
+    void settingsGetValueCompareToValueStored();
+    void settingsOverwriteExistingValuesIfPossible();
+    void settingsValuesAreNonVolatile();
+    void settingsNewKeysAddedToExistingSettingsFile();
+
 
 private:
     CommunicationHandler *comm;
@@ -97,6 +104,7 @@ void ServerTest::initTestCase()
     spotifySessionSingleton = new QtSpotifySession();
     //spotifySessionSingleton->initSpotify();
     //QtSpotifyWrapper *spotifyWrapperSingleton = new QtSpotifyWrapper();
+    settings = new Settings_storing;
 }
 
 void ServerTest::init()
@@ -170,7 +178,7 @@ void ServerTest::testEnsureMediaResponseMatchesExpected()
 
     QByteArray disk = onDisk.readAll();
 
-    comm->sendMediaRequest("AwINBJAgoRW3OzI=");
+    comm->sendMediaRequest("AwKoLNtr6l78cnA=");
 
     QTest::qWait(7000);
     QCOMPARE(mediaSpy.count(), 1);
@@ -186,7 +194,7 @@ void ServerTest::testEnsureMediaRequestsAlwaysReturnSameFile()
     QSignalSpy mediaSpy(comm, SIGNAL(onMediaReceived(QByteArray)));
     QVERIFY(mediaSpy.isValid());
 
-    comm->sendMediaRequest("AwINBJAgoRW3OzI=");
+    comm->sendMediaRequest("AwKoLNtr6l78cnA=");
 
     QTest::qWait(7000);
     QCOMPARE(mediaSpy.count(), 1);
@@ -194,7 +202,7 @@ void ServerTest::testEnsureMediaRequestsAlwaysReturnSameFile()
     QList<QVariant> ret = mediaSpy.takeFirst();
     QByteArray first = ret.at(0).toByteArray();
 
-    comm->sendMediaRequest("AwINBJAgoRW3OzI=");
+    comm->sendMediaRequest("AwKoLNtr6l78cnA=");
 
     QTest::qWait(7000);
     QCOMPARE(mediaSpy.count(), 1);
@@ -245,7 +253,7 @@ void ServerTest::testSearchResponseMatchesExpectedResult()
     QCOMPARE(res["number"].toInt(), 11);
     QJsonObject test
     {
-        {"hash", "AwINBJAgoRW3OzI="},
+        {"hash", "AwJr7xioKZ0/sbM="},
         {"order", ""}
     };
 
@@ -268,7 +276,9 @@ void ServerTest::testSearchResponseMatchesExpectedResult()
                        .at(0)
                        .toObject();
 
-    QVERIFY(test == first);
+    qDebug() << "Actual result" << QJsonDocument(first).toJson();
+    qDebug() << "Expected result" << QJsonDocument(test).toJson();
+    QCOMPARE(test, first);
 }
 
 void ServerTest::sendSuccessfulAuth()
@@ -626,6 +636,66 @@ void ServerTest::spotifySearchResultsFormatted()
     QSignalSpy searchResultsReadySpy(spotifySessionSingleton, &QtSpotifySession::searchResultReady);
     QTest::qWait(2000);     //making the Test wait while the search is being executed by libSpotify
     QVERIFY(!searchResultsReadySpy.isEmpty());
+}
+
+void ServerTest::settingsGetValueCompareToValueStored()
+{
+    QString key1 = "testSettingsKey1";
+    QVariant val1 = "SettingsValue1";
+
+    qDebug() << "Settings: Value - " << val1 << " put into Key - " << key1;
+    settings->setValue(key1, val1);
+    settings->sync();
+    qDebug() << "Settings: key - " << key1 << " has Value - " << val1;
+    QVariant valToCompare = settings->value("testSettingsKey1");
+    QCOMPARE(val1, valToCompare);
+}
+
+void ServerTest::settingsNewKeysAddedToExistingSettingsFile()
+{
+    settings->remove("New Key");
+    QStringList everyKey = settings->getAllKeys();
+    settings->sync();
+    settings->setValue("New Key", "New Value");
+    settings->sync();
+    QVERIFY(everyKey!=settings->getAllKeys());
+
+}
+
+void ServerTest::settingsOverwriteExistingValuesIfPossible()
+{
+    settings->setValue("OverwrittableKey", "OriginalValue");
+    settings->sync();
+    QVariant originalValue = settings->value("OverwrittableKey");
+
+   settings->setValue("OverwrittableKey", "NewValue");
+    settings->sync();
+    QVariant newValue = settings->value("OverwrittableKey");
+    QVERIFY(originalValue != newValue);
+}
+
+void ServerTest::settingsSyncOccured()
+{
+    settings->setValue("OverwrittableKey", "OriginalValue");
+    settings->sync();
+    QVariant originalValue = settings->value("OverwrittableKey");
+
+   settings->setValue("OverwrittableKey", "NewValue");
+    settings->sync();
+    QVariant newValue = settings->value("OverwrittableKey");
+    QVERIFY(originalValue != newValue);
+}
+
+void ServerTest::settingsValuesAreNonVolatile()
+{
+    Settings_storing *firstSettings = new Settings_storing;
+    settings->setValue("NonVolatileKey", "NonVolatileValue");
+    QVariant firstSettingsValue = settings->value("NonVolatileKey");
+
+    Settings_storing *secondSettings = new Settings_storing;
+    QVariant secondSettingsValue = settings->value("NonVolatileKey");
+
+    QCOMPARE(firstSettingsValue, secondSettingsValue);
 }
 
 QTEST_GUILESS_MAIN(ServerTest)
